@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a5f"/>
+      <stop offset="100%" style="stop-color:#0d1b2a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="800" rx="120" fill="url(#bg)"/>
+
+  <!-- Outer circle ring -->
+  <circle cx="400" cy="400" r="280" fill="none" stroke="url(#accent)" stroke-width="16" opacity="0.9"/>
+
+  <!-- Inner chat bubble shape -->
+  <path d="M300 280 h200 a80 80 0 0 1 80 80 v60 a80 80 0 0 1 -80 80 h-40 l-60 80 v-80 h-80 a80 80 0 0 1 -80 -80 v-60 a80 80 0 0 1 80 -80 z"
+        fill="url(#accent)" opacity="0.95"/>
+
+  <!-- Chat dots (conversation indicator) -->
+  <circle cx="350" cy="420" r="18" fill="#ffffff" opacity="0.9"/>
+  <circle cx="410" cy="420" r="18" fill="#ffffff" opacity="0.6"/>
+  <circle cx="470" cy="420" r="18" fill="#ffffff" opacity="0.35"/>
+
+  <!-- Small accent dots around ring -->
+  <circle cx="400" cy="100" r="12" fill="#6366f1" opacity="0.8"/>
+  <circle cx="700" cy="400" r="12" fill="#8b5cf6" opacity="0.8"/>
+  <circle cx="400" cy="700" r="12" fill="#6366f1" opacity="0.6"/>
+  <circle cx="100" cy="400" r="12" fill="#8b5cf6" opacity="0.6"/>
+</svg>

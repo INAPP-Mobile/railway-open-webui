@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -euo pipefail
 
 # Use SQLite backend by default (file-based), or PostgreSQL via env vars
@@ -10,8 +10,10 @@ fi
 mkdir -p /data
 chmod 777 /data
 
-exec tini -- python -m uvicorn open_webui.app:app \
+# Change to the backend working directory where open_webui lives
+cd /app/backend
+
+exec python -m uvicorn open_webui.app:app \
     --host 0.0.0.0 \
     --port "${PORT:-8080}" \
-    --proxy-headers \
-    --forwarded-headers-count 1
+    --proxy-headers

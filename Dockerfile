@@ -4,22 +4,24 @@ FROM ghcr.io/open-webui/open-webui:v0.6.29-slim
 
 LABEL org.opencontainers.image.source="https://github.com/INAPP-Mobile/railway-open-webui"
 
-ENV USE_EMBEDDING_MODEL_DOCKER=false
-ENV USE_RERANKING_MODEL_DOCKER=""
-ENV WHISPER_MODEL=null
-ENV WEBUI_SECRET_KEY=open_webui_railway_secret_key
-ENV ENV=prod
+# Disable all heavy features to reduce baseline memory
+ENV USE_EMBEDDING_MODEL_DOCKER=false \
+    USE_RERANKING_MODEL_DOCKER="" \
+    USE_SMART_LLM=false \
+    WHISPER_MODEL=null \
+    OLLAMA_BASE_URL="" \
+    ENABLE_OLLAMA_API=false \
+    DISABLE_ADMIN_EMAIL=true \
+    ENV=prod
 
-# Pre-generate secret key so startup doesn't hang waiting for it
-RUN mkdir -p /app/backend/.secrets \
-    && head -c 32 /dev/urandom | base64 > /app/backend/.secrets/.webui_secret_key \
-    && chmod 600 /app/backend/.secrets/.webui_secret_key
+# Do NOT hard-code WEBUI_SECRET_KEY — it must be generated at runtime
+# or injected via Railway secrets/environment. See docker-entrypoint.sh.
 
 COPY --chmod=755 docker-entrypoint.sh /docker-entrypoint.sh
 
 # Create non-root user (Issue 3: Security — must not run as root)
-ENV UID=1000
-ENV GID=1000
+ENV UID=1000 \
+    GID=1000
 RUN addgroup --gid ${GID} appuser && \
     adduser --disabled-password --uid ${UID} --ingroup appuser appuser && \
     mkdir -p /data /home/appuser/.cache && chown -R ${UID}:${GID} /data /app /home/appuser

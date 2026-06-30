@@ -1,6 +1,5 @@
 # syntax=docker/dockerfile:1
-# Slim variant skips heavy auto-init (embedding models, Whisper, etc.)
-FROM ghcr.io/open-webui/open-webui:v0.6.29-slim
+FROM ghcr.io/open-webui/open-webui:v0.10.1
 
 LABEL org.opencontainers.image.source="https://github.com/INAPP-Mobile/railway-open-webui"
 

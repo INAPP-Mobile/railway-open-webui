@@ -12,13 +12,13 @@ if [ -z "${WEBUI_SECRET_KEY:-}" ]; then
     echo "INFO: Generated runtime WEBUI_SECRET_KEY (no default shipped)" >&2
 fi
 
-# Determine start command; fall back to entrypoint logic
-if [ -f "/app/backend/start.sh" ]; then
-    # start.sh exists in slim variant — run migrations and start
-    exec /app/backend/start.sh "$@"
-else
-    # Bare-bones fallback: use uvicorn directly
-    cd /app
-    exec python -m uvicorn "open_webui.routes:app" \
-        --host 0.0.0.0 --port 8080
-fi
+# Critical: disable ALL upstream startup hooks that cause hangs/excess memory.
+export DISABLE_TOOL_INSTALLER=true
+export ENABLE_LSP=false
+export DISABLE_COMMUNITY_SHARING=true
+export ENABLE_SIGNUP=false
+
+cd /app
+exec python -m open_webui.main:app \
+    --host 0.0.0.0 \
+    --port 8080

@@ -3,36 +3,44 @@ FROM ghcr.io/open-webui/open-webui:v0.10.1-slim
 
 LABEL org.opencontainers.image.source="https://github.com/INAPP-Mobile/railway-open-webui"
 
-# Disable auto model downloads (upstream slim image checks these)
-ENV OVERRIDE_EMBEDDING_MODEL="" \
-    OVERRIDE_RERANKING_MODEL="" \
-    WHISPER_TINY_MODEL=null \
-    AUDIO_MODEL=null \
-    DISABLE_TOOL_INSTALLER=false \
-    ENABLE_SMART_LLM=false \
+# ── 1. Env vars to disable RAG/embedding pipelines ──
+ENV EMBEDDING_MODEL="" \
+    OVERRIDE_EMBEDDING_MODEL="" \
+    RAG_EMBEDDING_MODEL="" \
+    EMBEDDING_ENGINE="" \
     USE_EMBEDDING_MODEL_DOCKER=false \
-    OLLAMA_BASE_URL="" \
+    USE_AUXILIARY_EMBEDDING_MODEL_DOCKER=false \
+    RERANKING_MODEL="" \
+    OVERRIDE_RERANKING_MODEL="" \
+    RERANKING_ENGINE="" \
+    USE_RERANKING_MODEL_DOCKER=false \
     ENABLE_OLLAMA_API=false \
+    OLLAMA_BASE_URL="" \
+    DISABLE_TOOL_INSTALLER=true \
     DISABLE_ADMIN_EMAIL=true \
-    ENV=prod
+    ENABLE_SMART_LLM=false
 
-# Do NOT hard-code WEBUI_SECRET_KEY — it must be generated at runtime
-# or injected via Railway secrets/environment. See docker-entrypoint.sh.
+# ── 2. Patch hardcoded model names in upstream config files at build time ──
+# The slim image ships Python files with 'sentence-transformers/all-MiniLM-L6-v2' as
+# fallback strings inside `or`-chains. No env var can override these — we patch them out.
+COPY docker-patch-config.py /tmp/docker-patch-config.py
 
+RUN python3 /tmp/docker-patch-config.py 2>/dev/null || true
+
+# ── 3. Non-root user ──
 COPY --chmod=755 docker-entrypoint.sh /docker-entrypoint.sh
 
-# Create non-root user (Issue 3: Security — must not run as root)
 ENV UID=1000 \
     GID=1000
 RUN addgroup --gid ${GID} appuser && \
     adduser --disabled-password --uid ${UID} --ingroup appuser appuser && \
-    mkdir -p /data /home/appuser/.cache && chown -R ${UID}:${GID} /data /app /home/appuser
+    mkdir -p /data /home/appuser/.cache && chown -R ${UID}:${GID} /data /app
 
 USER ${UID}:${GID}
 
 EXPOSE 8080
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
 
 ENTRYPOINT ["/docker-entrypoint.sh"]

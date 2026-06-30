@@ -43,7 +43,7 @@ Copy `.env.example` to `.env` after deployment and set these variables in your R
 | `ENABLE_OAUTH_SIGN_IN`   | *(optional)*                               | Enable OAuth provider login (Google, GitHub, etc.)             |
 | `OAUTH_CLIENT_ID`        | *(optional)*                               | OAuth client ID from your provider                             |
 | `OAUTH_CLIENT_SECRET`    | *(optional)*                               | OAuth client secret from your provider                         |
-| `PRIMAR MODEL`           | `llama3.1:latest`                          | Default LLM model to use                                       |
+| `PRIMARY_MODEL`         | `llama3.1:latest`                          | Default LLM model to use                                       |
 | `DEFAULT_MODELS`         | `llama3.1:latest`                          | Available default models list                                  |
 | `CHAT_DEFAULT_MODEL`     | `llama3.1:latest`                          | Model selected by default in chat                              |
 

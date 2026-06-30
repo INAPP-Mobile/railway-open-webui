@@ -1,6 +1,6 @@
 # Open WebUI — Railway Template
 
-[![Deploy on Railway](https://railway.com/button/deploy.svg)](https://railway.com/template/railway-open-webui)
+[![Deploy on Railway](https://railway.com/button/deploy.svg)](https://railway.com/template/open-webui-3)
 
 Self-hosted Open WebUI (formerly Ollama WebUI) — a beautiful, feature-rich interface for running LLMs locally or via API. Deploy in minutes on Railway.
 
@@ -75,18 +75,17 @@ With Railway, you get automatic HTTPS, global CDN, health monitoring, and scalab
 Copy `.env.example` to `.env` after deployment and set these variables in your Railway project settings:
 
 || Variable                 | Default                                    | Description                                                    ||
-||--------------------------|--------------------------------------------|----------------------------------------------------------------|
-|| `DATABASE_URL`           | `sqlite:////data/open_webui.db`            | Database path (SQLite file or PostgreSQL URL)                  |
-|| `PORT`                   | `8080`                                     | HTTP port the app listens on                                   |
-|| `WEBSITE_HOSTNAME`       | *(set after first deploy)*                 | Public URL (e.g. `https://my-app-production.up.railway.app`)   |
-|| `ENABLE_SIGNUP`          | `true`                                     | Allow new user registration                                    |
-|| `DISABLE_SIGNUP`         | `false`                                    | Disable sign-up entirely                                       |
-|| `ENABLE_OAUTH_SIGN_IN`   | *(optional)*                               | Enable OAuth provider login (Google, GitHub, etc.)             |
-|| `OAUTH_CLIENT_ID`        | *(optional)*                               | OAuth client ID from your provider                              |
-|| `OAUTH_CLIENT_SECRET`    | *(optional)*                               | OAuth client secret from your provider                          |
-|| `PRIMARY_MODEL`         | `llama3.1:latest`                          | Default LLM model to use                                       |
-|| `DEFAULT_MODELS`         | `llama3.1:latest`                          | Available default models list                                  |
-|| `CHAT_DEFAULT_MODEL`     | `llama3.1:latest`                          | Model selected by default in chat                              |
+||| `DATABASE_URL`           | `sqlite:////data/open_webui.db`            | Database path (SQLite file or PostgreSQL URL)                  ||
+|| `PORT`                   | `8080`                                     | HTTP port the app listens on                                   ||
+|| `WEBSITE_HOSTNAME`       | *(empty - set to your Railway URL)*         | Public URL for OAuth and CORS                                  ||
+|| `ENABLE_SIGNUP`          | `true`                                     | Allow new user registration                                    ||
+|| `DISABLE_SIGNUP`         | `false`                                    | Disable sign-up entirely                                       ||
+|| `ENABLE_OAUTH_SIGN_IN`   | `false`                                    | Enable OAuth provider login                                    ||
+|| `OAUTH_CLIENT_ID`        | *(empty)*                                  | OAuth client ID from your provider                              ||
+|| `OAUTH_CLIENT_SECRET`    | *(empty)*                                  | OAuth client secret from your provider                          ||
+|| `DEFAULT_MODELS`         | `llama3.1:latest`                          | Available default models list                                  ||
+|| `PRIMARY_MODEL`          | `llama3.1:latest`                          | Default LLM model to use                                       ||
+|| `CHAT_DEFAULT_MODEL`     | `llama3.1:latest`                          | Model selected by default in chat                              ||
 
 ## Getting Started
 

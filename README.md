@@ -74,18 +74,19 @@ With Railway, you get automatic HTTPS, global CDN, health monitoring, and scalab
 
 Copy `.env.example` to `.env` after deployment and set these variables in your Railway project settings:
 
-|| Variable                 | Default                                    | Description                                                    ||
-||| `DATABASE_URL`           | `sqlite:////data/open_webui.db`            | Database path (SQLite file or PostgreSQL URL)                  ||
-|| `PORT`                   | `8080`                                     | HTTP port the app listens on                                   ||
-|| `WEBSITE_HOSTNAME`       | *(empty - set to your Railway URL)*         | Public URL for OAuth and CORS                                  ||
-|| `ENABLE_SIGNUP`          | `true`                                     | Allow new user registration                                    ||
-|| `DISABLE_SIGNUP`         | `false`                                    | Disable sign-up entirely                                       ||
-|| `ENABLE_OAUTH_SIGN_IN`   | `false`                                    | Enable OAuth provider login                                    ||
-|| `OAUTH_CLIENT_ID`        | *(empty)*                                  | OAuth client ID from your provider                              ||
-|| `OAUTH_CLIENT_SECRET`    | *(empty)*                                  | OAuth client secret from your provider                          ||
-|| `DEFAULT_MODELS`         | `llama3.1:latest`                          | Available default models list                                  ||
-|| `PRIMARY_MODEL`          | `llama3.1:latest`                          | Default LLM model to use                                       ||
-|| `CHAT_DEFAULT_MODEL`     | `llama3.1:latest`                          | Model selected by default in chat                              ||
+| Variable                 | Default                                    | Description                                                    |
+|--------------------------|--------------------------------------------|----------------------------------------------------------------|
+| `DATABASE_URL`           | `sqlite:////data/open_webui.db`            | Database path (SQLite file or PostgreSQL URL)                  |
+| `PORT`                   | `8080`                                     | HTTP port the app listens on                                   |
+| `WEBSITE_HOSTNAME`       | *(empty - set to your Railway URL)*         | Public URL for OAuth and CORS                                  |
+| `ENABLE_SIGNUP`          | `true`                                     | Allow new user registration                                    |
+| `DISABLE_SIGNUP`         | `false`                                    | Disable sign-up entirely                                       |
+| `ENABLE_OAUTH_SIGN_IN`   | `false`                                    | Enable OAuth provider login                                    |
+| `OAUTH_CLIENT_ID`        | *(empty)*                                  | OAuth client ID from your provider                              |
+| `OAUTH_CLIENT_SECRET`    | *(empty)*                                  | OAuth client secret from your provider                          |
+| `DEFAULT_MODELS`         | `llama3.1:latest`                          | Available default models list                                  |
+| `PRIMARY_MODEL`          | `llama3.1:latest`                          | Default LLM model to use                                       |
+| `CHAT_DEFAULT_MODEL`     | `llama3.1:latest`                          | Model selected by default in chat                              |
 
 ## Getting Started
 

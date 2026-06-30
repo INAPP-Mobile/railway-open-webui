@@ -1,13 +1,16 @@
 # syntax=docker/dockerfile:1
-FROM ghcr.io/open-webui/open-webui:v0.10.1
+FROM ghcr.io/open-webui/open-webui:v0.10.1-slim
 
 LABEL org.opencontainers.image.source="https://github.com/INAPP-Mobile/railway-open-webui"
 
-# Disable all heavy features to reduce baseline memory
-ENV USE_EMBEDDING_MODEL_DOCKER=false \
-    USE_RERANKING_MODEL_DOCKER="" \
-    USE_SMART_LLM=false \
-    WHISPER_MODEL=null \
+# Disable auto model downloads (upstream slim image checks these)
+ENV OVERRIDE_EMBEDDING_MODEL="" \
+    OVERRIDE_RERANKING_MODEL="" \
+    WHISPER_TINY_MODEL=null \
+    AUDIO_MODEL=null \
+    DISABLE_TOOL_INSTALLER=false \
+    ENABLE_SMART_LLM=false \
+    USE_EMBEDDING_MODEL_DOCKER=false \
     OLLAMA_BASE_URL="" \
     ENABLE_OLLAMA_API=false \
     DISABLE_ADMIN_EMAIL=true \

@@ -8,7 +8,7 @@ fi
 
 # Generate WEBUI_SECRET_KEY at runtime if not provided — never ship a default.
 if [ -z "${WEBUI_SECRET_KEY:-}" ]; then
-    export WEBUI_SECRET_KEY="$(head -c 32 /dev/urandom | base64)"
+    export WEBUI_SECRET_KEY=$(head -c 32 /dev/urandom | base64)
     echo "INFO: Generated runtime WEBUI_SECRET_KEY (no default shipped)" >&2
 fi
 
@@ -18,7 +18,9 @@ export ENABLE_LSP=false
 export DISABLE_COMMUNITY_SHARING=true
 export ENABLE_SIGNUP=false
 
-cd /app
-exec python -m open_webui.main:app \
+cd /app/backend
+
+exec python -m uvicorn open_webui.main:app \
     --host 0.0.0.0 \
     --port 8080
+

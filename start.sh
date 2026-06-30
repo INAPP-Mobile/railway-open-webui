@@ -5,17 +5,11 @@
 
 set -euo pipefail
 
-cd /app
+cd /app/backend
 
 # Ensure data dir exists
 mkdir -p /data
 
-# Disable the heavy upstream startup initialization
-export DISABLE_TOOL_INSTALLER=true
-export ENABLE_LSP=false
-
 exec python -m uvicorn open_webui.main:app \
     --host 0.0.0.0 \
-    --port 8080 \
-    --app-dir /app \
-    --log-level info
+    --port 8080

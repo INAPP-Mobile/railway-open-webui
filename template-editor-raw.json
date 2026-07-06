@@ -1,0 +1,26 @@
+{
+  "PORT": {
+    "value": "8080",
+    "description": "Port the Open WebUI service listens on inside the container"
+  },
+  "WEBUI_SECRET_KEY": {
+    "value": "${{secret(32)}}",
+    "description": "Signs session cookies and JWTs. Auto-generated at deploy. Do not edit."
+  },
+  "WEBSITE_HOSTNAME": {
+    "value": "",
+    "description": "Public URL of this deployment. Leave empty at deploy, then set from the Variables tab after first launch."
+  },
+  "DEFAULT_MODELS": {
+    "value": "",
+    "description": "Comma-separated model IDs shown in chat picker (e.g. llama3.1:latest,gpt-4o)"
+  },
+  "OPENAI_API_KEY": {
+    "value": "",
+    "description": "API key for OpenAI, OpenRouter, Groq, or any compatible provider"
+  },
+  "OPENAI_API_BASE_URL": {
+    "value": "",
+    "description": "Base URL for the OpenAI-compatible API (default: https://api.openai.com/v1)"
+  }
+}

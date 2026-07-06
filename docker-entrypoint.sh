@@ -22,5 +22,5 @@ cd /app/backend
 
 exec python -m uvicorn open_webui.main:app \
     --host 0.0.0.0 \
-    --port 8080
+    --port ${PORT:-8080}
 

@@ -1,6 +1,6 @@
 # Open WebUI — Railway Template
 
-[![Deploy on Railway](https://railway.com/button/deploy.svg)](https://railway.com/template/open-webui-3)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.com/new/template/open-webui-3)
 
 Self-hosted Open WebUI (formerly Ollama WebUI) — a beautiful, feature-rich interface for running LLMs locally or via API. Deploy in minutes on Railway.
 
@@ -72,46 +72,76 @@ With Railway, you get automatic HTTPS, global CDN, health monitoring, and scalab
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` after deployment and set these variables in your Railway project settings:
+The deploy form only asks for the **up-front** knobs. Every other Open WebUI setting (sign-up toggles, OAuth/OIDC, LDAP, RAG, image generation, etc.) is configurable from the in-app admin UI after your first login — see [Configuring after deploy](#configuring-after-deploy). Defaults are safe for everyone else.
 
-| Variable                 | Default                                    | Description                                                    |
-|--------------------------|--------------------------------------------|----------------------------------------------------------------|
-| `DATABASE_URL`           | `sqlite:////data/open_webui.db`            | Database path (SQLite file or PostgreSQL URL)                  |
-| `PORT`                   | `8080`                                     | HTTP port the app listens on                                   |
-| `WEBSITE_HOSTNAME`       | *(empty - set to your Railway URL)*         | Public URL for OAuth and CORS                                  |
-| `ENABLE_SIGNUP`          | `true`                                     | Allow new user registration                                    |
-| `DISABLE_SIGNUP`         | `false`                                    | Disable sign-up entirely                                       |
-| `ENABLE_OAUTH_SIGN_IN`   | `false`                                    | Enable OAuth provider login                                    |
-| `OAUTH_CLIENT_ID`        | *(empty)*                                  | OAuth client ID from your provider                              |
-| `OAUTH_CLIENT_SECRET`    | *(empty)*                                  | OAuth client secret from your provider                          |
-| `DEFAULT_MODELS`         | `llama3.1:latest`                          | Available default models list                                  |
-| `PRIMARY_MODEL`          | `llama3.1:latest`                          | Default LLM model to use                                       |
-| `CHAT_DEFAULT_MODEL`     | `llama3.1:latest`                          | Model selected by default in chat                              |
+| Variable              | Default                                 | Description |
+|-----------------------|-----------------------------------------|-------------|
+| `WEBUI_SECRET_KEY`    | _auto (Railway generates 32 chars)_     | Signs session cookies and JWTs. Auto-generated at deploy time. Do not edit unless you intentionally want to invalidate every active session. |
+| `WEBSITE_HOSTNAME`    | _(empty)_                               | Public URL of this deployment. Leave empty on first deploy, then set to your Railway app URL (`https://your-app.up.railway.app`) from the **Variables** tab. Required for OAuth callbacks and CORS. |
+| `DEFAULT_MODELS`      | _(empty)_                               | Comma-separated model IDs shown in the chat picker (e.g. `llama3.1:latest,gpt-4o`). Leave empty and add models once a provider is connected. |
+| `OPENAI_API_KEY`      | _(empty)_                               | API key for OpenAI, OpenRouter, Groq, Together AI, or any OpenAI-compatible provider. Leave empty if you only use a local Ollama server. |
+| `OPENAI_API_BASE_URL` | _(empty)_                               | Base URL for the provider above. Leave empty for `https://api.openai.com/v1`. Examples: `https://openrouter.ai/api/v1`, `http://ollama.railway.internal:11434/v1`. |
+
+These are the only variables rendered on the Railway template deploy form. Other Open WebUI variables (PostgreSQL URL, RAG embedding model, web search key, etc.) can be added from the Railway **Variables** tab and are also exposed in the admin UI.
 
 ## Getting Started
 
-1. Click the **Deploy on Railway** button above
-2. Wait for the build to complete (usually < 2 minutes)
-3. Set `WEBSITE_HOSTNAME` to your Railway app URL in project settings
-4. Visit your app at `/health` — should return `200 OK`
+1. Click the **Deploy on Railway** button above.
+2. Wait for the build to complete (usually < 2 minutes).
+3. Visit your Railway app URL — the **first signup is automatically promoted to admin**.
+4. Open the admin panel (`/admin/settings`) and configure sign-up, OAuth, API keys, and providers — see [Configuring after deploy](#configuring-after-deploy).
+5. Hit `/health` — returns `200 OK` once the app is fully up.
+
+## Configuring after deploy
+
+The deploy form is intentionally short. Sign-up toggles, OAuth/OIDC, LDAP, and the bulk of Open WebUI's ~150 environment variables are exposed in the admin UI at `/admin/settings`.
+
+### Enable or disable sign-up
+
+1. Log in as the admin (the first account created).
+2. Click your avatar → **Admin Panel**.
+3. Open **Settings → General** (`/admin/settings`).
+4. Toggle **Enable Sign-Up**. Flip it off once you've created your admin account to lock the deployment to invited users.
+5. Use **Default User Role** to pre-stage new accounts as `pending`, `user`, or another role.
+
+### Set up OAuth / OIDC
+
+Open WebUI has first-class OAuth/OIDC support for Google, GitHub, Microsoft, and generic OIDC, plus LDAP/AD for enterprise. As of v0.6+ these settings live on a dedicated **Authentication** page (moved out of General):
+
+1. In Railway, set `WEBSITE_HOSTNAME` to your production URL (`https://your-app.up.railway.app`). OAuth callbacks reject mismatched origins — set this **before** testing the login button.
+2. In the admin UI, open **Settings → Authentication**.
+3. Toggle **Enable OAuth/OIDC Sign-In**.
+4. Fill in **Client ID**, **Client Secret**, and the discovery URLs (`/.well-known/openid-configuration`) — inline placeholders are provided for Google, GitHub, Microsoft, and generic OIDC.
+5. Save, log out, and re-test the login page — the provider button should appear.
+
+### Add LLM provider keys
+
+Per-user API keys live in each user's profile. To set a default for new users or configure a global admin key, go to **Settings → Connections** in the admin UI. This avoids setting environment variables per user.
+
+### Adjust other advanced settings
+
+Almost every env var in upstream [Open WebUI `.env.example`](https://github.com/open-webui/open-webui/blob/main/.env.example) has an equivalent admin UI control — search the **Settings** page for `RAG`, `Web Search`, `Image Generation`, `Default User Role`, etc. If a setting is only exposed as an env var, set it directly from the Railway **Variables** tab.
 
 ## Connecting to a Local Ollama Instance
 
-If you're running Open WebUI alongside a local Ollama server:
+If you're running Open WebUI alongside a separate Ollama service on Railway:
 
-1. Deploy the [railway-ollama](https://railway.com/template/ollama) template separately
-2. Set `OLLAMA_BASE_URL=http://database.internal` on your Open WebUI project
-3. Restart the application
+1. Deploy the [railway-ollama](https://railway.com/new/template/ollama) template in the same project.
+2. On your Open WebUI service, set `OPENAI_API_BASE_URL=http://ollama.railway.internal:11434/v1` (Ollama ≥0.3 ships with an OpenAI-compatible gateway).
+3. Restart the Open WebUI service and pull a model from the Ollama service's settings.
+4. Set `DEFAULT_MODELS=llama3.1:latest` (or whatever model you pulled) in the Open WebUI service to surface it in the chat picker.
 
 ## Troubleshooting
 
 **Build fails:** Ensure `DOCKERFILE` builder is selected and your git branch is up to date.
 
-**App won't start after deploy:** Verify `WEBSITE_HOSTNAME` includes the correct protocol (`https://`). Open WebUI requires this for secure cookies.
+**Login page errors or app won't start:** `WEBSITE_HOSTNAME` is optional at deploy, but if you set it, make sure it includes the correct protocol (`https://...`). OAuth and secure cookies require the production URL.
 
-**Database empty after redeploy:** Make sure your Railway volume (mounted at `/data`) persists across deploys. Delete and recreate the volume if needed.
+**OAuth button missing on login page:** Confirm two things — `WEBSITE_HOSTNAME` matches your production URL exactly (with `https://`), and OAuth is toggled on in **Settings → Authentication**. Re-test after saving.
 
-**OAuth not working:** OAuth callbacks require `WEBSITE_HOSTNAME` to be set to your actual production URL before you first configure OAuth credentials in Open WebUI settings.
+**No models in the chat picker:** Either set `DEFAULT_MODELS` to a model you've configured, or open **Settings → Connections** in the admin UI and add a provider + API key.
+
+**Database empty after redeploy:** Make sure your Railway volume (mounted at `/data`) persists across deploys. Delete and recreate the volume only if you intentionally want a fresh SQLite store.
 
 ## Resources
 

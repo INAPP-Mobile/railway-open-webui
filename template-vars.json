@@ -1,0 +1,97 @@
+{
+  "PORT": {
+    "defaultValue": "8080",
+    "description": "Port Open WebUI service listens inside container",
+    "isOptional": false
+  },
+  "WEBUI_SECRET_KEY": {
+    "defaultValue": "${{secret(32)}}",
+    "description": "Signs session cookies JWTs. Auto-generated on deploy.",
+    "isOptional": false
+  },
+  "WEBUI_NAME": {
+    "defaultValue": "Open WebUI",
+    "description": "Name displayed in page title and email notifications",
+    "isOptional": true
+  },
+  "DEFAULT_MODELS": {
+    "defaultValue": "",
+    "description": "Comma-separated model IDs shown in chat selector (e.g. llama3.1:latest,gpt-4o). Leave empty for all available.",
+    "isOptional": true
+  },
+  "OPENAI_API_KEY": {
+    "defaultValue": "",
+    "description": "API key for OpenAI, OpenRouter, Groq or any OpenAI-compatible provider",
+    "isOptional": true
+  },
+  "OPENAI_API_BASE_URL": {
+    "defaultValue": "",
+    "description": "Base URL for OpenAI-compatible API (default: https://api.openai.com/v1)",
+    "isOptional": true
+  },
+  "ENABLE_SIGNUP": {
+    "defaultValue": "true",
+    "description": "Allow new users to register on the signup page",
+    "isOptional": true
+  },
+  "ENABLE_LOGIN_FORM": {
+    "defaultValue": "true",
+    "description": "Show email/password login form alongside OAuth",
+    "isOptional": true
+  },
+  "WEBUI_AUTH": {
+    "defaultValue": "true",
+    "description": "Set false to disable auth entirely (not recommended for public apps)",
+    "isOptional": true
+  },
+  "ENABLE_CHANNELS": {
+    "defaultValue": "false",
+    "description": "Enable Channels feature (public chat rooms)",
+    "isOptional": true
+  },
+  "SCARF_NO_ANALYTICS": {
+    "defaultValue": "true",
+    "description": "Opt out of Scarf analytics page views (privacy)",
+    "isOptional": true
+  },
+  "ANONYMIZED_TELEMETRY": {
+    "defaultValue": "false",
+    "description": "Enable anonymized feature usage telemetry",
+    "isOptional": true
+  },
+  "ENABLE_ADMIN_EXPORT": {
+    "defaultValue": "true",
+    "description": "Allow admins to export all chats data via admin settings",
+    "isOptional": true
+  },
+  "GLOBAL_LOG_LEVEL": {
+    "defaultValue": "INFO",
+    "description": "Application log level (DEBUG/INFO/WARNING/ERROR/CRITICAL)",
+    "isOptional": true
+  },
+  "CORS_ALLOW_ORIGIN": {
+    "defaultValue": "",
+    "description": "Additional CORS origin to allow (comma-separated). Leave empty for auto-detect.",
+    "isOptional": true
+  },
+  "JWT_EXPIRES_IN": {
+    "defaultValue": "",
+    "description": "JWT session expiry in minutes. Leave empty for default value.",
+    "isOptional": true
+  },
+  "USE_CUDA_DOCKER": {
+    "defaultValue": "false",
+    "description": "Enable NVIDIA CUDA support for local embeddings (requires GPU node)",
+    "isOptional": true
+  },
+  "RAG_TOP_K": {
+    "defaultValue": "5",
+    "description": "Number of top documents retrieved per RAG query",
+    "isOptional": true
+  },
+  "WEBSITE_HOSTNAME": {
+    "defaultValue": "",
+    "description": "Public URL deployment. Set after first launch in Railway Variables tab.",
+    "isOptional": true
+  }
+}

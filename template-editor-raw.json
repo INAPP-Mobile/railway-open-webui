@@ -1,26 +1,78 @@
 {
   "PORT": {
     "value": "8080",
-    "description": "Port the Open WebUI service listens on inside the container"
+    "description": "Port Open WebUI service listens inside container"
   },
   "WEBUI_SECRET_KEY": {
     "value": "${{secret(32)}}",
-    "description": "Signs session cookies and JWTs. Auto-generated at deploy. Do not edit."
+    "description": "Signs session cookies and JWTs. Auto-generated on deploy."
   },
-  "WEBSITE_HOSTNAME": {
-    "value": "",
-    "description": "Public URL of this deployment. Leave empty at deploy, then set from the Variables tab after first launch."
+  "WEBUI_NAME": {
+    "value": "Open WebUI",
+    "description": "Name displayed in page title and email notifications"
   },
   "DEFAULT_MODELS": {
     "value": "",
-    "description": "Comma-separated model IDs shown in chat picker (e.g. llama3.1:latest,gpt-4o)"
+    "description": "Comma-separated model IDs shown in chat selector (e.g. llama3.1:latest,gpt-4o). Leave empty to show all available models."
   },
   "OPENAI_API_KEY": {
     "value": "",
-    "description": "API key for OpenAI, OpenRouter, Groq, or any compatible provider"
+    "description": "API key for OpenAI, OpenRouter, Groq or any OpenAI-compatible provider"
   },
   "OPENAI_API_BASE_URL": {
     "value": "",
-    "description": "Base URL for the OpenAI-compatible API (default: https://api.openai.com/v1)"
+    "description": "Base URL for OpenAI-compatible API (default: https://api.openai.com/v1)"
+  },
+  "ENABLE_SIGNUP": {
+    "value": "true",
+    "description": "Allow new users to register on the signup page"
+  },
+  "ENABLE_LOGIN_FORM": {
+    "value": "true",
+    "description": "Show email/password login form alongside OAuth"
+  },
+  "WEBUI_AUTH": {
+    "value": "true",
+    "description": "Set false to disable auth entirely (not recommended for public apps)"
+  },
+  "ENABLE_CHANNELS": {
+    "value": "false",
+    "description": "Enable Channels feature (public chat rooms)"
+  },
+  "SCARF_NO_ANALYTICS": {
+    "value": "true",
+    "description": "Opt out of Scarf analytics page views (privacy)"
+  },
+  "ANONYMIZED_TELEMETRY": {
+    "value": "false",
+    "description": "Enable anonymized feature usage telemetry"
+  },
+  "ENABLE_ADMIN_EXPORT": {
+    "value": "true",
+    "description": "Allow admins to export all chats data via admin settings"
+  },
+  "GLOBAL_LOG_LEVEL": {
+    "value": "INFO",
+    "description": "Application log level (DEBUG/INFO/WARNING/ERROR/CRITICAL)"
+  },
+  "CORS_ALLOW_ORIGIN": {
+    "value": "",
+    "description": "Additional CORS origin to allow (comma-separated). Leave empty for auto-detect."
+  },
+  "JWT_EXPIRES_IN": {
+    "value": "",
+    "description": "JWT session expiry in minutes. Leave empty for default value."
+  },
+  "USE_CUDA_DOCKER": {
+    "value": "false",
+    "description": "Enable NVIDIA CUDA support for local embeddings (requires GPU node)"
+  },
+  "RAG_TOP_K": {
+    "value": "5",
+    "description": "Number of top documents retrieved per RAG query"
+  },
+  "WEBSITE_HOSTNAME": {
+    "value": "",
+    "description": "Public URL for the deployment. Leave empty to use Railway auto-generated URL."
   }
 }

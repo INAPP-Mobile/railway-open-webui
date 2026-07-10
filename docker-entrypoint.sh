@@ -27,9 +27,8 @@ if ! chmod 777 "${DATA_DIR}" 2>/dev/null; then
   echo "[entrypoint] WARN: chmod 777 ${DATA_DIR} failed (read-only remount?). Continuing." >&2
 fi
 
-# Same widening for any existing SQLite DB + WAL/SHM siblings (idempotent;
-# only chmods files we find, so first-volume case is a no-op).
-# chmod 666 widens the SQLite file so -wal/-shm siblings are writable; same Railway root:root 755 pattern as the dir chmod above.
+# # sibling -wal/-shm files are created in the chmod-777 dir above.
+# chmod 666 widens this DB file's rw perms; sibling -wal/-shm files are created inside the already-chmod-777 dir above.
 if [ -f "${DATA_DIR}/webui.db" ]; then
   chmod 666 "${DATA_DIR}/webui.db" 2>/dev/null || true
 fi

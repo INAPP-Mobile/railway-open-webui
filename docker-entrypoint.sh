@@ -8,11 +8,17 @@ set -euo pipefail
 # here on every boot — before uvicorn tries to open /data/open_webui.db.
 chown -R "${UID:-1000}:${GID:-1000}" /data
 
+echo "[boot] post-chown: id=$(id); /data perms=$(stat -c '%a %U:%G' /data 2>&1)" >&2
+
 # ── 2. Database URL ───────────────────────────────────────────────────────
 if [ -z "${DATABASE_URL:-}" ]; then
     # 4-slash form = absolute Linux path. SQLite will create the file on first open.
     export DATABASE_URL="sqlite:////data/open_webui.db"
 fi
+
+echo "[boot] DATABASE_URL=${DATABASE_URL}" >&2
+echo "[boot] /data listing:" >&2
+ls -la /data 2>&1 | head -20 >&2 || echo "[boot] ls failed" >&2
 
 # ── 3. WEBUI_SECRET_KEY (only if user didn't set it) ──────────────────────
 if [ -z "${WEBUI_SECRET_KEY:-}" ]; then

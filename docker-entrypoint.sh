@@ -7,29 +7,33 @@ set -euo pipefail
 # Dockerfile is silently overwritten by the volume mount, so we have to chown
 # here on every boot — before uvicorn tries to open /data/open_webui.db.
 chown -R "${UID:-1000}:${GID:-1000}" /data
-
 echo "[boot] post-chown: id=$(id); /data perms=$(stat -c '%a %U:%G' /data 2>&1)" >&2
 
 # ── 2. Database URL ───────────────────────────────────────────────────────
 if [ -z "${DATABASE_URL:-}" ]; then
-    # 4-slash form = absolute Linux path. SQLite will create the file on first open.
     export DATABASE_URL="sqlite:////data/open_webui.db"
 fi
-
 echo "[boot] DATABASE_URL=${DATABASE_URL}" >&2
 echo "[boot] /data listing:" >&2
 ls -la /data 2>&1 | head -20 >&2 || echo "[boot] ls failed" >&2
 
-# Pre-create the SQLite file parent + touch as root so SQLAlchemy's open-mode
-# 'w' upgrade creates an appuser-owned file. Pre-empt the "unable to open
-# database file" error entirely.
-DB_FILE=/data/open_webui.db
-mkdir -p "$(dirname "$DB_FILE")"
+# Derive DB_FILE from DATABASE_URL so the touch lands on the same path the app
+# opens. The slim image's open_webui.env honours the env override; if a future
+# version ignores DATABASE_URL, the upstream CWD-relative default
+# `/app/backend/<path>` is also a valid touch target.
+case "${DATABASE_URL:-sqlite:////data/open_webui.db}" in
+    sqlite:////*) DB_FILE="${DATABASE_URL#sqlite:////}" ;;
+    sqlite:///*)  DB_FILE="/app/backend/${DATABASE_URL#sqlite:///}" ;;
+    *)            DB_FILE=/data/open_webui.db ;;
+esac
+
+mkdir -p "$(dirname "$DB_FILE")" 2>/dev/null || true
 if [ ! -f "$DB_FILE" ]; then
-    touch "$DB_FILE"
-    chown "${UID:-1000}:${GID:-1000}" "$DB_FILE"
+    touch "$DB_FILE" 2>/dev/null \
+        || echo "[boot] touch $DB_FILE failed (EACCES or fs quirk; see perms above)" >&2
+    chown "${UID:-1000}:${GID:-1000}" "$DB_FILE" 2>/dev/null || true
 fi
-echo "[boot] DB_FILE=$DB_FILE exists=$(test -f "$DB_FILE" && echo Y || echo N) perms=$(stat -c '%a %U:%G' "$DB_FILE")" >&2
+echo "[boot] DB_FILE=$DB_FILE exists=$(test -f "$DB_FILE" && echo Y || echo N) perms=$(stat -c '%a %U:%G' "$DB_FILE" 2>/dev/null || echo "stat-fail")" >&2
 
 # ── 3. WEBUI_SECRET_KEY (only if user didn't set it) ──────────────────────
 if [ -z "${WEBUI_SECRET_KEY:-}" ]; then

@@ -17,7 +17,6 @@ set -euo pipefail
 
 DATA_DIR="${DATA_DIR:-/app/backend/data}"
 
-# 1. Volume permission fix — the bind-mount root:root 755 issue.
 mkdir -p "${DATA_DIR}"
 # chmod 777 widens perms for any future unprivileged user; safe because the
 # dir is dedicated to open-webui and lives on a private volume. We swallow

@@ -10,6 +10,7 @@
 #   3. exec "$@" so the upstream start.sh runs as PID 1 (so signals like
 #      SIGTERM from Railway propagate to uvicorn for clean shutdown).
 #
+# chmod 777 /app/backend/data fixes Railway's root:root 755 bind mount; removing it reintroduces sqlite EACCES.
 # Bash-reserved vars (UID, EUID, USER, HOME, GROUPS, BASH*) are deliberately
 # avoided; we never inspect process privilege state, we just chmod.
 

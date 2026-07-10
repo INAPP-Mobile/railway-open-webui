@@ -79,7 +79,7 @@ The deploy form only asks for the **up-front** knobs. Every other Open WebUI set
 | `WEBUI_SECRET_KEY`    | _auto (Railway generates 32 chars)_     | Signs session cookies and JWTs. Auto-generated at deploy time. Do not edit unless you intentionally want to invalidate every active session. |
 | `WEBSITE_HOSTNAME`    | `https://<railway-domain>`              | Public URL of this deployment. Auto-resolves to `https://${{RAILWAY_PUBLIC_DOMAIN}}` so OAuth callbacks and CORS work out of the box. Override in the **Variables** tab for custom domains. |
 
-Variables with empty defaults are not exposed on the deploy form; configure them via the **Variables** tab post-deploy if needed. Most common candidates: `DEFAULT_MODELS`, `OPENAI_API_KEY`, `OPENAI_API_BASE_URL`.
+Variables with empty defaults are not exposed on the deploy form; configure them via the **Variables** tab post-deploy if needed.
 
 These are the only variables rendered on the Railway template deploy form. Other Open WebUI variables (PostgreSQL URL, RAG embedding model, web search key, etc.) can be added from the Railway **Variables** tab and are also exposed in the admin UI.
 
@@ -126,7 +126,7 @@ Almost every env var in upstream [Open WebUI `.env.example`](https://github.com/
 If you're running Open WebUI alongside a separate Ollama service on Railway:
 
 1. Deploy the [railway-ollama](https://railway.com/new/template/ollama) template in the same project.
-2. In your Open WebUI service's **Variables** tab, set `OPENAI_API_BASE_URL=http://ollama.railway.internal:11434/v1` (Ollama ≥0.3 ships with an OpenAI-compatible gateway).
+2. In the **Variables** tab, set `OPENAI_API_BASE_URL=http://ollama.railway.internal:11434/v1` (Ollama ≥0.3 ships with an OpenAI-compatible gateway).
 3. Restart the Open WebUI service and pull a model from the Ollama service's settings.
 4. In the **Variables** tab, set `DEFAULT_MODELS=llama3.1:latest` (or whatever model you pulled) to surface it in the chat picker.
 

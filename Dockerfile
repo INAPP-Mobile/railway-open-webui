@@ -83,4 +83,10 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=5 \
     CMD bash -c "exec 3<>/dev/tcp/127.0.0.1/8080" || exit 1
 
-CMD ["/usr/local/bin/railway-entrypoint.sh"]    
+# CRITICAL: override CMD with ENTRYPOINT to defend against Railway's
+# platform occasionally running OLD cached deploys. Even if our CMD
+# override should work, ENTRYPOINT is more idiomatic when overriding
+# the upstream image's CMD-as-PID-1 pattern. With ENTRYPOINT, Docker
+# can't append our wrapper as a positional argument to the upstream
+# ENTRYPOINT (defense in depth).
+ENTRYPOINT ["/usr/local/bin/railway-entrypoint.sh"]    

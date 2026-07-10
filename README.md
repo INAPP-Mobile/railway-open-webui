@@ -2,15 +2,15 @@
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.com/new/template/open-webui-3)
 
-Self-hosted Open WebUI is a privacy-first, multi-provider interface for any Large Language Model. Drop an API key on the deploy form and start chatting in minutes — it ships with `DEFAULT_MODELS=gpt-4o`, a `${{secret(32)}}` API key placeholder, and `https://api.openai.com/v1` ready to swap. Works out-of-the-box with OpenAI, OpenRouter, Groq, Anthropic, or your own local Ollama network. All chat history lives in a persistent Railway volume; your data never leaves your own infrastructure.
+Self-hosted Open WebUI is a privacy-first, multi-provider interface for any Large Language Model. The deploy form ships with `DEFAULT_MODELS=gpt-4o`, an auto-generated placeholder API key, and OpenAI's `https://api.openai.com/v1` base URL — swap the placeholder for your real `sk-...` key and you're live in minutes, or skip the key and pair it with the [Railway Ollama](https://railway.com/new/template/ollama) template for a local-only setup. Works equally well with OpenAI, OpenRouter, Groq, or Together AI through the same OpenAI-compatible gateway, and Anthropic via its own `ANTHROPIC_API_KEY` env var. All chat history lives in a persistent Railway volume; your data never leaves your own infrastructure.
 
 ## Features
 
-- **Ready to chat instantly** — Pre-populated deploy form with `DEFAULT_MODELS=gpt-4o`, a `OPENAI_API_KEY` placeholder, and `https://api.openai.com/v1` base URL. Replace the placeholder with your real `sk-...` key and you're live.
-- **Multi-provider by default** — Connect OpenAI, Anthropic, OpenRouter, Groq, Together AI, or any OpenAI-compatible endpoint. Override `OPENAI_API_BASE_URL` post-deploy for local Ollama (`http://ollama.railway.internal:11434/v1`).
+- **Ready to chat instantly** — Pre-populated deploy form with `DEFAULT_MODELS=gpt-4o`, an auto-generated `OPENAI_API_KEY` placeholder, and `https://api.openai.com/v1` base URL. Replace the placeholder with your real `sk-...` key and you're live. No key? Pair with the [Railway Ollama](https://railway.com/new/template/ollama) template for a fully local chat.
+- **Multi-provider by default** — Connect OpenAI, OpenRouter, Groq, Together AI, or any OpenAI-compatible endpoint through the same base URL. Override `OPENAI_API_BASE_URL` post-deploy for local Ollama (`http://ollama.railway.internal:11434/v1`); Anthropic is supported via its own `ANTHROPIC_API_KEY` env var.
 - **Single-container deploy** — One Railway service, one persistent `/data` volume for SQLite. Zero external databases; PostgreSQL optional from the in-app admin UI.
 - **Full admin UI post-deploy** — Sign-up toggles, OAuth/OIDC (Google, GitHub, Microsoft, generic OIDC), LDAP, RAG, image generation, web search, and ~150 advanced knobs — all in `/admin/settings` without redeploys.
-- **Bring-your-own-key (BYOK) ready** — Per-user API keys in each profile, or a global admin key in **Settings → Connections**. No env-var plumbing required for each user.
+- **Per-user or global API keys** — Each user stores their own keys in their profile; admins can set a global default in **Settings → Connections**. No env-var plumbing required per user.
 - **Streaming, markdown, code rendering** — Open WebUI's chat UX with dark/light themes, response streaming, syntax-highlighted code blocks, and image generation built in.
 
 ## Architecture

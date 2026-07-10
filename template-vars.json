@@ -10,8 +10,8 @@
     "isOptional": true
   },
   "DEFAULT_MODELS": {
-    "value": "gpt-4o,llama3.1",
-    "description": "Comma-separated list of model IDs shown in the chat picker (e.g. gpt-4o,llama3.1:latest). Default: 'gpt-4o,llama3.1'. Override with the models from your configured provider.",
+    "value": "gpt-4o",
+    "description": "Comma-separated list of model IDs shown in the chat picker. Default: 'gpt-4o' (OpenAI). Override with models from your configured provider — e.g., 'llama3.1:latest' for Railway Ollama, 'gpt-4o,claude-3-5-sonnet' for multi-provider.",
     "isOptional": true
   },
   "OPENAI_API_KEY": {

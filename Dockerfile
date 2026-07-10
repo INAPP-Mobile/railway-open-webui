@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM ghcr.io/open-webui/open-webui:v0.10.1-slim
+FROM ghcr.io/open-webui/open-webui:v0.10.2-slim
 
 LABEL org.opencontainers.image.source="https://github.com/INAPP-Mobile/railway-open-webui"
 
@@ -39,7 +39,13 @@ RUN addgroup --gid ${GID} appuser && \
     adduser --disabled-password --uid ${UID} --ingroup appuser appuser && \
     mkdir -p /data /home/appuser/.cache && chown -R ${UID}:${GID} /data /app
 
-USER ${UID}:${GID}
+# Stay as root so docker-entrypoint.sh can fix /data ownership at runtime.
+# (Railway creates the /data volume at *deploy* time — not build time — so the
+#  build-time `chown ${UID}:${GID} /data` above is silently overwritten by the
+#  volume mount. The bash entrypoint re-runs chown at every boot, then drops
+#  privileges to appuser via `su -p` so the uvicorn process still runs
+#  non-root with PORT + RAILWAY_PUBLIC_DOMAIN env preserved.)
+USER root
 
 EXPOSE 8080
 

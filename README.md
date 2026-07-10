@@ -37,7 +37,7 @@ Open WebUI runs as a single Docker container with a persistent volume for SQLite
 
 Railway provides automatic HTTPS, global CDN, health monitoring, and scalable infrastructure. The default health check at `/health` ensures Railway can monitor service availability.
 
-- **Default Port:** 8080 (configurable via `PORT`)
+- **Default Port:** 8080 (Railway auto-injects `PORT`; the entrypoint falls back to 8080 if absent)
 - **Health Check:** `GET /health` — returns HTTP 200 when ready
 - **Startup Time:** ~2 seconds (Open WebUI is lightweight)
 - **Resource Usage:** ~256MB RAM baseline
@@ -65,7 +65,7 @@ With Railway, you get automatic HTTPS, global CDN, health monitoring, and scalab
 
 ### Deployment Dependencies
 
-- **Runtime:** Open WebUI v0.10.1 (bundled in the container image)
+- **Runtime:** Open WebUI v0.10.2 (bundled in the container image)
 - **Storage:** Persistent volume at `/data` for SQLite database
 - **External access:** Port 8080 for the web interface and API
 - **Optional:** Ollama or OpenAI-compatible API endpoint (set `OLLAMA_BASE_URL` or provider API keys)
@@ -77,7 +77,7 @@ The deploy form only asks for the **up-front** knobs. Every other Open WebUI set
 | Variable              | Default                                 | Description |
 |-----------------------|-----------------------------------------|-------------|
 | `WEBUI_SECRET_KEY`    | _auto (Railway generates 32 chars)_     | Signs session cookies and JWTs. Auto-generated at deploy time. Do not edit unless you intentionally want to invalidate every active session. |
-| `WEBSITE_HOSTNAME`    | _(empty)_                               | Public URL of this deployment. Leave empty on first deploy, then set to your Railway app URL (`https://your-app.up.railway.app`) from the **Variables** tab. Required for OAuth callbacks and CORS. |
+| `WEBSITE_HOSTNAME`    | `https://<railway-domain>`              | Public URL of this deployment. Auto-resolves to `https://${{RAILWAY_PUBLIC_DOMAIN}}` so OAuth callbacks and CORS work out of the box. Override in the **Variables** tab for custom domains. |
 | `DEFAULT_MODELS`      | _(empty)_                               | Comma-separated model IDs shown in the chat picker (e.g. `llama3.1:latest,gpt-4o`). Leave empty and add models once a provider is connected. |
 | `OPENAI_API_KEY`      | _(empty)_                               | API key for OpenAI, OpenRouter, Groq, Together AI, or any OpenAI-compatible provider. Leave empty if you only use a local Ollama server. |
 | `OPENAI_API_BASE_URL` | _(empty)_                               | Base URL for the provider above. Leave empty for `https://api.openai.com/v1`. Examples: `https://openrouter.ai/api/v1`, `http://ollama.railway.internal:11434/v1`. |
@@ -108,7 +108,7 @@ The deploy form is intentionally short. Sign-up toggles, OAuth/OIDC, LDAP, and t
 
 Open WebUI has first-class OAuth/OIDC support for Google, GitHub, Microsoft, and generic OIDC, plus LDAP/AD for enterprise. As of v0.6+ these settings live on a dedicated **Authentication** page (moved out of General):
 
-1. In Railway, set `WEBSITE_HOSTNAME` to your production URL (`https://your-app.up.railway.app`). OAuth callbacks reject mismatched origins — set this **before** testing the login button.
+1. `WEBSITE_HOSTNAME` already auto-resolves to `https://<railway-domain>` at deploy time, so OAuth callbacks work out of the box. Only override it if you front the service with a custom domain (e.g., `https://chat.example.com`). OAuth callbacks reject mismatched origins — set this **before** testing the login button.
 2. In the admin UI, open **Settings → Authentication**.
 3. Toggle **Enable OAuth/OIDC Sign-In**.
 4. Fill in **Client ID**, **Client Secret**, and the discovery URLs (`/.well-known/openid-configuration`) — inline placeholders are provided for Google, GitHub, Microsoft, and generic OIDC.
@@ -135,9 +135,9 @@ If you're running Open WebUI alongside a separate Ollama service on Railway:
 
 **Build fails:** Ensure `DOCKERFILE` builder is selected and your git branch is up to date.
 
-**Login page errors or app won't start:** `WEBSITE_HOSTNAME` is optional at deploy, but if you set it, make sure it includes the correct protocol (`https://...`). OAuth and secure cookies require the production URL.
+**Login page errors or app won't start:** `WEBSITE_HOSTNAME` auto-fills to `https://${{RAILWAY_PUBLIC_DOMAIN}}` — secure cookies and OAuth callbacks work out of the box. Override only for custom domains.
 
-**OAuth button missing on login page:** Confirm two things — `WEBSITE_HOSTNAME` matches your production URL exactly (with `https://`), and OAuth is toggled on in **Settings → Authentication**. Re-test after saving.
+**OAuth button missing on login page:** Confirm two things — `WEBSITE_HOSTNAME` matches the URL you're logging in through (default is `https://<railway-domain>`, with `https://` prefix included automatically), and OAuth is toggled on in **Settings → Authentication**. Re-test after saving.
 
 **No models in the chat picker:** Either set `DEFAULT_MODELS` to a model you've configured, or open **Settings → Connections** in the admin UI and add a provider + API key.
 

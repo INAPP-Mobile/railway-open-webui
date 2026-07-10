@@ -5,12 +5,18 @@ dockerfilePath = "Dockerfile"
 [deploy]
 # No healthcheckPath: open-webui's /health reflects uvicorn-bound, not
 # alembic-/lifespan-ready, so on cold volumes Railway would mark deploys
-# CRASHED in the first 60-120s. We rely on restartPolicyType=ON_FAILURE
-# to absorb slow init (max 5 retries).
+# CRASHED in the first 60-120s. We rely on restartPolicyType=ON_FAILURE.
 numReplicas = 1
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
 
+# DATA_DIR must match the volumeMount mountPath below. open-webui's start.sh
+# uses $DATA_DIR for sqlite db path + WAL/SHM siblings. The legacy Railway
+# dashboard-level volume still mounts at /data; reconciles by pointing both
+# the env var and the mount at /data.
+[deploy.env]
+DATA_DIR = "/data"
+
 [[deploy.volumeMounts]]
 name = "open-webui-data"
-mountPath = "/app/backend/data"
+mountPath = "/data"

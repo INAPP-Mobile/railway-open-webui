@@ -133,6 +133,8 @@ If you're running Open WebUI alongside a separate Ollama service on Railway:
 
 ## Troubleshooting
 
+**Database empty after redeploy:** This template ships with `DATA_DIR=/data` in `railway.toml` [deploy.env]. The persistent volume mounts at `/data`. Make sure your Railway **Volumes** tab is also set to mount at `/data`. If you change `DATA_DIR`, change `[[deploy.volumeMounts]] mountPath =` to match — open-webui's start.sh uses `$DATA_DIR` for sqlite-wal/-shm siblings, and a mismatch wipes the db on every redeploy.
+
 **Build fails:** Check the latest build log in the **Deployments** tab — the Dockerfile is a single `FROM ghcr.io/open-webui/open-webui:v0.6.18` line that should complete in under 30s. If it stalls on `apt-get update` or `pip install`, the upstream image tag was rebuilt and our pinned version went stale; update the FROM line.
 
 **Login page errors or app won't start:** `WEBSITE_HOSTNAME` auto-fills to `https://${{RAILWAY_PUBLIC_DOMAIN}}` — secure cookies and OAuth callbacks work out of the box. Override only for custom domains.

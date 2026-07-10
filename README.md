@@ -80,7 +80,8 @@ The deploy form only asks for the **up-front** knobs. Every other Open WebUI set
 | `WEBSITE_HOSTNAME`    | `https://<railway-domain>`              | Public URL of this deployment. Auto-resolves to `https://${{RAILWAY_PUBLIC_DOMAIN}}` so OAuth callbacks and CORS work out of the box. Override in the **Variables** tab for custom domains. |
 | `DEFAULT_MODELS`      | _(empty)_                               | Comma-separated model IDs shown in the chat picker (e.g. `llama3.1:latest,gpt-4o`). Leave empty and add models once a provider is connected. |
 | `OPENAI_API_KEY`      | _(empty)_                               | API key for OpenAI, OpenRouter, Groq, Together AI, or any OpenAI-compatible provider. Leave empty if you only use a local Ollama server. |
-| `OPENAI_API_BASE_URL` | _(empty)_                               | Base URL for the provider above. Leave empty for `https://api.openai.com/v1`. Examples: `https://openrouter.ai/api/v1`, `http://ollama.railway.internal:11434/v1`. |
+
+Variables that were dropped from this deploy form (DEFAULT_MODELS, OPENAI_API_KEY, OPENAI_API_BASE_URL) can still be set in the **Variables** tab after first deploy, if needed. The deploy form keeps only variables with non-empty defaults or runtime macros.
 
 These are the only variables rendered on the Railway template deploy form. Other Open WebUI variables (PostgreSQL URL, RAG embedding model, web search key, etc.) can be added from the Railway **Variables** tab and are also exposed in the admin UI.
 

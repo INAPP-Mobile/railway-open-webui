@@ -66,7 +66,7 @@ With Railway, you get automatic HTTPS, global CDN, health monitoring, and scalab
 ### Deployment Dependencies
 
 - **Runtime:** Open WebUI v0.6.18 (upstream ghcr.io image, pinned in the Dockerfile)
-- **Storage:** Persistent volume at `/app/backend/data` (upstream open-webui data dir; precreated + chmod 777 by our entrypoint)
+- **Storage:** Persistent volume mounted at `/data` (Railway `[[deploy.volumeMounts]] mountPath`; `DATA_DIR=/data` is baked into the Dockerfile, and the entrypoint precreates + chmod 777's it on first boot so the upstream non-root user can write)
 - **External access:** Port 8080 for the web interface and API
 - **Optional:** Ollama or OpenAI-compatible API endpoint (set `OLLAMA_BASE_URL` or provider API keys)
 

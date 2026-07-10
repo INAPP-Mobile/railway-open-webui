@@ -78,8 +78,6 @@ The deploy form only asks for the **up-front** knobs. Every other Open WebUI set
 |-----------------------|-----------------------------------------|-------------|
 | `WEBUI_SECRET_KEY`    | _auto (Railway generates 32 chars)_     | Signs session cookies and JWTs. Auto-generated at deploy time. Do not edit unless you intentionally want to invalidate every active session. |
 | `WEBSITE_HOSTNAME`    | `https://<railway-domain>`              | Public URL of this deployment. Auto-resolves to `https://${{RAILWAY_PUBLIC_DOMAIN}}` so OAuth callbacks and CORS work out of the box. Override in the **Variables** tab for custom domains. |
-| `DEFAULT_MODELS`      | _(empty)_                               | Comma-separated model IDs shown in the chat picker (e.g. `llama3.1:latest,gpt-4o`). Leave empty and add models once a provider is connected. |
-| `OPENAI_API_KEY`      | _(empty)_                               | API key for OpenAI, OpenRouter, Groq, Together AI, or any OpenAI-compatible provider. Leave empty if you only use a local Ollama server. |
 
 Variables that were dropped from this deploy form (DEFAULT_MODELS, OPENAI_API_KEY, OPENAI_API_BASE_URL) can still be set in the **Variables** tab after first deploy, if needed. The deploy form keeps only variables with non-empty defaults or runtime macros.
 
@@ -142,7 +140,6 @@ If you're running Open WebUI alongside a separate Ollama service on Railway:
 
 **OAuth button missing on login page:** Confirm two things — `WEBSITE_HOSTNAME` matches the URL you're logging in through (default is `https://<railway-domain>`, with `https://` prefix included automatically), and OAuth is toggled on in **Settings → Authentication**. Re-test after saving.
 
-**No models in the chat picker:** Either set `DEFAULT_MODELS` to a model you've configured, or open **Settings → Connections** in the admin UI and add a provider + API key.
 
 **Database empty after redeploy:** Make sure your Railway volume (mounted at `/app/backend/data`) persists across deploys. Delete and recreate the volume only if you intentionally want a fresh SQLite store.
 

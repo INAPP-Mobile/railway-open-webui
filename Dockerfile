@@ -30,32 +30,57 @@ RUN python3 /tmp/docker-patch-config.py 2>/dev/null || true && \
     apt-get update && apt-get install -y --no-install-recommends curl && \
     rm -rf /var/lib/apt/lists/*
 
-# ── 3. Custom boot script ──
-# We overwrite upstream's CMD target (/app/backend/start.sh) with our
-# chown-then-exec-uvicorn script. Upstream's Dockerfile CMD is
-#   ["bash", "start.sh"]   (working dir: /app/backend)
-# so Docker runs /app/backend/start.sh as the boot. USER root lets us
-# chown /data at runtime; we drop to appuser via setpriv before exec
-# python -m uvicorn. ENGINE: use upstream's verified PID-1 / CMD chain —
-# do NOT set our own ENTRYPOINT (Railway's log capture was filtering out
-# scripts that overrode upstream's).
-COPY --chmod=755 docker-entrypoint.sh /app/backend/start.sh
+# ── 3. Custom boot wrapper ──
+# Upstream's CMD is ["bash", "start.sh"] invoked with WORKDIR=/app/backend.
+# We MUST NOT clobber /app/backend/start.sh: the slim image's start.sh runs
+# alembic migrations, generates .webui_secret_key on first boot, and does
+# the FastAPI lifespan init that registers routers. Without those, uvicorn
+# binds to :8080 but serves a 404 for every route (verified locally with
+# podman run on the unmodified upstream image).
+#
+# Our wrapper (copied to a NEW path so upstream's start.sh survives) runs
+# preflight: chown/chmod /app/backend/data (Railway volume mount target),
+# chmod 666 the DB file, generate WEBUI_SECRET_KEY, then exec setpriv
+# bash /app/backend/start.sh so upstream's full startup pipeline runs
+# under appuser.
+COPY --chmod=755 docker-entrypoint.sh /usr/local/bin/railway-entrypoint.sh
 
-ENV UID=1000 \
-    GID=1000
-RUN addgroup --gid ${GID} appuser && \
-    adduser --disabled-password --uid ${UID} --ingroup appuser appuser && \
-    mkdir -p /data /home/appuser/.cache && chown -R ${UID}:${GID} /data /app
+# CRITICAL: do NOT name this `UID` / `GID` — bash reserves those as read-only
+# virtual variables that always equal the *effective* user id of the running
+# shell. When the entrypoint runs as USER root, $UID=0 and $GID=0 clobber
+# whatever we pass here, breaking the setpriv privilege drop silently.
+# Use APP_UID / APP_GID throughout.
+ENV APP_UID=1000 \
+    APP_GID=1000
+RUN addgroup --gid ${APP_GID} appuser && \
+    adduser --disabled-password --uid ${APP_UID} --ingroup appuser appuser && \
+    # Build-time prep: chown only the dirs appuser writes at runtime.
+    # /app/backend/data is Railway's volume mount target — it must pre-exist
+    # as a directory for the bind mount to attach to (otherwise Docker creates
+    # it AS ROOT, breaking appuser writability through chmod alone).
+    # /home/appuser/.cache is the upstream model-cache dir.
+    # We do NOT chown /app/backend itself — upstream source files stay root-owned.
+    mkdir -p /app/backend/data /home/appuser/.cache && \
+    chown -R ${APP_UID}:${APP_GID} /app/backend/data /home/appuser/.cache
 
-# Stay as root so docker-entrypoint.sh can fix /data ownership at runtime.
-# (Railway creates the /data volume at *deploy* time — not build time — so the
-#  build-time `chown ${UID}:${GID} /data` above is silently overwritten by the
-#  volume mount. The bash entrypoint re-runs chown at every boot, then drops
-#  privileges to appuser via `su -p` so the uvicorn process still runs
-#  non-root with PORT + RAILWAY_PUBLIC_DOMAIN env preserved.)
+# Stay as root so the wrapper can re-fix /app/backend/data ownership at
+# runtime (the Railway volume mount at /app/backend/data may shadow our
+# build-time chown). The wrapper re-runs chmod/chown at every boot, then
+# drops privileges to appuser via setpriv before delegating to upstream's
+# start.sh.
 USER root
 
 EXPOSE 8080
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://127.0.0.1:${PORT:-8080}/health || exit 1
+# TCP-socket open probe is more reliable than `curl /` during lifespan scan:
+# open-webui v0.10.x does a static-asset walk on first request that often
+# exceeds --timeout=10s. /dev/tcp probe just confirms uvicorn bound the port.
+# Hardcoded 8080 to avoid fragile PORT-expansion edge cases (Dockerfile
+# parser mishandling the backslash escape would break the probe silently);
+# matches `EXPOSE 8080` and Railway's default PORT=8080.
+# start-period=120s gives alembic + secret-key generation time before the
+# first probe (chroma init can take 30-60s on first boot).
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=5 \
+    CMD bash -c "exec 3<>/dev/tcp/127.0.0.1/8080" || exit 1
+
+CMD ["/usr/local/bin/railway-entrypoint.sh"]    

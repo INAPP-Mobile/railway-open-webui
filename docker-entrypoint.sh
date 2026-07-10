@@ -13,15 +13,12 @@ set -euo pipefail
 # Always read from the Dockerfile-set APP_UID / APP_GID env (defined in
 # the `ENV APP_UID=1000 APP_GID=1000` line). This cost 8 deploys already.
 
-# CRITICAL: do NOT read from $UID/$GID directly — bash reserves those as
-# read-only virtual variables equal to the *effective* user/id of the shell.
-# When this script runs as USER root, $UID=0 clobbers whatever Dockerfile
-# tried to set. Always read from APP_UID / APP_GID env (defined in Dockerfile).
-UID_VAL="${APP_UID:-1000}"
-GID_VAL="${APP_GID:-1000}"
+# Defaults. We run as root throughout (matching upstream open-webui default),
+# so there's no UID/GID plumbing here — the legacy APP_UID/APP_GID env vars
+# are no longer set in the image. Keep PORT_VAL since it's used below.
 PORT_VAL="${PORT:-8080}"
 
-echo "[boot] container pid=$$ user=$(id 2>&1 || echo unknown) APP_UID=${APP_UID:-unset} APP_GID=${APP_GID:-unset}" >&2
+echo "[boot] container pid=$$ user=$(id 2>&1 || echo unknown)" >&2
 
 # 1. /app/backend/data volume perms.
 #    Railway mounts the persistent volume at /app/backend/data (we moved
@@ -33,19 +30,16 @@ echo "[boot] container pid=$$ user=$(id 2>&1 || echo unknown) APP_UID=${APP_UID:
 #    inherits our ownership, so appuser can write directly even if chmod
 #    fails. chmod 777 here widens the dir for any process that drops
 #    privileges further; safe because /app/backend/data is single-tenant.
-if chown -R "${UID_VAL}:${GID_VAL}" /app/backend/data 2>/dev/null; then
-    echo "[boot] chown /app/backend/data -> ${UID_VAL}:${GID_VAL} (OK)" >&2
-else
-    echo "[boot] chown /app/backend/data FAILED (bind-mount rejected CAP_CHOWN; relying on chmod 777 + build-time /app/backend dir)" >&2
-fi
+# We run as root; chmod 777 widens perms regardless of bind-mount chown.
+# Drop the conditional chown entirely — UID_VAL/GID_VAL are unset under the
+# run-as-root model, and the chmod 777 alone is sufficient.
 if chmod 777 /app/backend/data 2>/dev/null; then
     echo "[boot] chmod 777 /app/backend/data (OK)" >&2
 else
-    echo "[boot] chmod 777 /app/backend/data FAILED (bind-mount rejected syscall; chmod may need to be done by Railway)" >&2
+    echo "[boot] chmod 777 /app/backend/data FAILED (continuing; SQLite -wal may EACCES)" >&2
 fi
 DATA_PERMS=$(stat -c '%a %U:%G' /app/backend/data 2>/dev/null || echo "stat-fail")
-DATA_OWNER=$(stat -c '%U:%G' /app/backend/data 2>/dev/null || echo "owner-fail")
-echo "[boot] /app/backend/data perms=${DATA_PERMS} owner=${DATA_OWNER}" >&2
+echo "[boot] /app/backend/data perms=${DATA_PERMS}" >&2
 
 # 2. Database URL fallback (sqlite means alembic creates the file).
 if [ -z "${DATABASE_URL:-}" ]; then
@@ -76,9 +70,8 @@ fi
 if chmod 666 "${DB_FILE}" 2>/dev/null; then
     echo "[boot] chmod 666 ${DB_FILE} (OK)" >&2
 else
-    echo "[boot] chmod 666 ${DB_FILE} FAILED (continuing; appuser may have ACL)" >&2
+    echo "[boot] chmod 666 ${DB_FILE} FAILED (continuing; FS may already be wide enough)" >&2
 fi
-chown "${UID_VAL}:${GID_VAL}" "${DB_FILE}" 2>/dev/null || true
 DB_PERMS=$(stat -c '%a %U:%G' "${DB_FILE}" 2>/dev/null || echo "stat-fail")
 echo "[boot] DB_FILE=${DB_FILE} exists=$(test -f "${DB_FILE}" && echo Y || echo N) perms=${DB_PERMS}" >&2
 
@@ -96,6 +89,10 @@ export DISABLE_COMMUNITY_SHARING=true
 # 5. DATA_DIR = /app/backend/data (where Railway mounts the persistent vol).
 export DATA_DIR="/app/backend/data"
 echo "[boot] DATA_DIR=${DATA_DIR}" >&2
+
+# CRITICAL: also drop the now-stale `chown "${UID_VAL}:${GID_VAL}" "${DB_FILE}"`
+# line that was superseded by the chmod 666 step above — UID_VAL is no
+# longer defined. The chmod alone is sufficient when running as root.
 
 # 6. Sanity check + delegate to upstream's startup script.
 # We deliberately do NOT exec uvicorn ourselves — upstream's start.sh

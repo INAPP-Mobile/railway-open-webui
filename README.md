@@ -37,9 +37,9 @@ Open WebUI runs as a single Docker container with a persistent volume for SQLite
 
 Railway provides automatic HTTPS, global CDN, health monitoring, and scalable infrastructure. The default health check at `/health` ensures Railway can monitor service availability.
 
-- **Default Port:** 8080 (Railway auto-injects `PORT`; the entrypoint falls back to 8080 if absent)
+- **Default Port:** 8080 (Railway auto-injects `PORT`; upstream start.sh uses it)
 - **Health Check:** `GET /health` — returns HTTP 200 when ready
-- **Startup Time:** ~2 seconds (Open WebUI is lightweight)
+- **Startup Time:** ~30-60 seconds (alembic migrations + lifespan init on cold volume)
 - **Resource Usage:** ~256MB RAM baseline
 
 ## Why Deploy
@@ -65,8 +65,8 @@ With Railway, you get automatic HTTPS, global CDN, health monitoring, and scalab
 
 ### Deployment Dependencies
 
-- **Runtime:** Open WebUI v0.10.2 (bundled in the container image)
-- **Storage:** Persistent volume at `/data` for SQLite database
+- **Runtime:** Open WebUI v0.6.18 (upstream ghcr.io image, pinned in the Dockerfile)
+- **Storage:** Persistent volume at `/app/backend/data` (upstream open-webui data dir; precreated + chmod 777 by our entrypoint)
 - **External access:** Port 8080 for the web interface and API
 - **Optional:** Ollama or OpenAI-compatible API endpoint (set `OLLAMA_BASE_URL` or provider API keys)
 
@@ -133,7 +133,7 @@ If you're running Open WebUI alongside a separate Ollama service on Railway:
 
 ## Troubleshooting
 
-**Build fails:** Ensure `DOCKERFILE` builder is selected and your git branch is up to date.
+**Build fails:** Check the latest build log in the **Deployments** tab — the Dockerfile is a single `FROM ghcr.io/open-webui/open-webui:v0.6.18` line that should complete in under 30s. If it stalls on `apt-get update` or `pip install`, the upstream image tag was rebuilt and our pinned version went stale; update the FROM line.
 
 **Login page errors or app won't start:** `WEBSITE_HOSTNAME` auto-fills to `https://${{RAILWAY_PUBLIC_DOMAIN}}` — secure cookies and OAuth callbacks work out of the box. Override only for custom domains.
 
@@ -141,7 +141,7 @@ If you're running Open WebUI alongside a separate Ollama service on Railway:
 
 **No models in the chat picker:** Either set `DEFAULT_MODELS` to a model you've configured, or open **Settings → Connections** in the admin UI and add a provider + API key.
 
-**Database empty after redeploy:** Make sure your Railway volume (mounted at `/data`) persists across deploys. Delete and recreate the volume only if you intentionally want a fresh SQLite store.
+**Database empty after redeploy:** Make sure your Railway volume (mounted at `/app/backend/data`) persists across deploys. Delete and recreate the volume only if you intentionally want a fresh SQLite store.
 
 ## Resources
 

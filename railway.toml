@@ -1,11 +1,13 @@
 [build]
-builder = "IMAGE"
-image = "ghcr.io/open-webui/open-webui:v0.6.18"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "bash /app/backend/start.sh"
-healthcheckPath = "/health"
-healthcheckTimeout = 300
+# No healthcheckPath: open-webui's /health reflects uvicorn-bound, not
+# alembic-/lifespan-ready, so on cold volumes Railway would mark deploys
+# CRASHED in the first 60-120s. We rely on restartPolicyType=ON_FAILURE
+# to absorb slow init (max 5 retries).
+numReplicas = 1
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
 

@@ -10,7 +10,6 @@
 #   3. exec "$@" so the upstream start.sh runs as PID 1 (so signals like
 #      SIGTERM from Railway propagate to uvicorn for clean shutdown).
 #
-# chmod 777 /app/backend/data fixes Railway's root:root 755 bind mount; removing it reintroduces sqlite EACCES.
 # Bash-reserved vars (UID, EUID, USER, HOME, GROUPS, BASH*) are deliberately
 # avoided; we never inspect process privilege state, we just chmod.
 
@@ -24,6 +23,7 @@ mkdir -p "${DATA_DIR}"
 # dir is dedicated to open-webui and lives on a private volume. We swallow
 # chmod failures (e.g. read-only remount) instead of bailing out so the
 # container still boots and Railway's `ON_FAILURE` restart policy can take over.
+# chmod 777 /app/backend/data fixes Railway's root:root 755 bind mount; removing it reintroduces sqlite EACCES.
 if ! chmod 777 "${DATA_DIR}" 2>/dev/null; then
   echo "[entrypoint] WARN: chmod 777 ${DATA_DIR} failed (read-only remount?). Continuing." >&2
 fi

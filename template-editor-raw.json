@@ -18,5 +18,9 @@
   "OPENAI_API_BASE_URL": {
     "value": "",
     "description": "Base URL for the OpenAI-compatible provider above. Leave empty for https://api.openai.com/v1. Examples: https://openrouter.ai/api/v1, http://ollama.railway.internal:11434/v1."
+  },
+  "OPEN_WEBUI_IMAGE_VERSION": {
+    "description": "Open WebUI image tag pulled from ghcr.io/open-webui/open-webui.",
+    "value": "v0.6.18"
   }
 }

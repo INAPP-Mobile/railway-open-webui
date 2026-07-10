@@ -2,7 +2,7 @@
 # docker-entrypoint.sh — minimal first-boot wrapper for open-webui on Railway.
 #
 # Responsibilities (kept intentionally tiny):
-#   1. Widen /app/backend/data write perms (chmod 777). Railway can re-mount
+#   1. Widen ${DATA_DIR} write perms (chmod 777). Railway can re-mount
 #      the volume with restrictive attrs on redeploy; this tolerates that.
 #   2. Generate WEBUI_SECRET_KEY only when absent. Generated secret persists
 #      across restarts because Railway keeps it as a generated service var
@@ -15,19 +15,16 @@
 
 set -euo pipefail
 
-DATA_DIR="${DATA_DIR:-/app/backend/data}"
+DATA_DIR="${DATA_DIR:-/data}"
+
+echo "[entrypoint] DATA_DIR=${DATA_DIR}"
 
 mkdir -p "${DATA_DIR}"
-# chmod 777 widens perms for any future unprivileged user; safe because the
-# dir is dedicated to open-webui and lives on a private volume. We swallow
-# chmod failures (e.g. read-only remount) instead of bailing out so the
-# container still boots and Railway's `ON_FAILURE` restart policy can take over.
-# chmod 777 /app/backend/data fixes Railway's root:root 755 bind mount; removing it reintroduces sqlite EACCES.
+# chmod 777 ${DATA_DIR} fixes Railway's root:root 755 bind mount; removing it reintroduces sqlite EACCES.
 if ! chmod 777 "${DATA_DIR}" 2>/dev/null; then
   echo "[entrypoint] WARN: chmod 777 ${DATA_DIR} failed (read-only remount?). Continuing." >&2
 fi
 
-# # sibling -wal/-shm files are created in the chmod-777 dir above.
 # chmod 666 widens this DB file's rw perms; sibling -wal/-shm files are created inside the already-chmod-777 dir above.
 if [ -f "${DATA_DIR}/webui.db" ]; then
   chmod 666 "${DATA_DIR}/webui.db" 2>/dev/null || true

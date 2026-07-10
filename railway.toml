@@ -10,13 +10,11 @@ numReplicas = 1
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
 
-# DATA_DIR must match the volumeMount mountPath below. open-webui's start.sh
-# uses $DATA_DIR for sqlite db path + WAL/SHM siblings. The legacy Railway
-# dashboard-level volume still mounts at /data; reconciles by pointing both
-# the env var and the mount at /data.
-[deploy.env]
-DATA_DIR = "/data"
-
+# DATA_DIR is set in the Dockerfile (ENV DATA_DIR="/data") to avoid the
+# historical pitfall where Railway's pinned-reference service-level mount
+# at /data diverged from the app's actual write path (causing the sqlite
+# db + WAL/SHM siblings to wipe every redeploy). The persistent volume
+# below mounts at /data, matching the baked-in DATA_DIR.
 [[deploy.volumeMounts]]
-name = "open-webui-data"
+name = "open-webui-volume"
 mountPath = "/data"

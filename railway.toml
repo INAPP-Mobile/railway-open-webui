@@ -1,3 +1,9 @@
+# Marketplace overview metadata (display name / category / short description
+# for the Railway template listing) is published via `railway templates publish
+# --category "AI/ML" --description "..." --readme-file README.md` flags, NOT
+# stored in this file. The fields below cover build + deploy + volume binds
+# only. README.md is the canonical marketplace overview; keep them in sync.
+
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"

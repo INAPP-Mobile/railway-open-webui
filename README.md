@@ -2,16 +2,16 @@
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.com/new/template/open-webui-3)
 
-Self-hosted Open WebUI (formerly Ollama WebUI) — a beautiful, feature-rich interface for running LLMs locally or via API. Deploy in minutes on Railway.
+Self-hosted Open WebUI is a privacy-first, multi-provider interface for any Large Language Model. Drop an API key on the deploy form and start chatting in minutes — it ships with `DEFAULT_MODELS=gpt-4o`, a `${{secret(32)}}` API key placeholder, and `https://api.openai.com/v1` ready to swap. Works out-of-the-box with OpenAI, OpenRouter, Groq, Anthropic, or your own local Ollama network. All chat history lives in a persistent Railway volume; your data never leaves your own infrastructure.
 
 ## Features
 
-- **Chat with any LLM** — connect to local Ollama instances or remote APIs
-- **Beautiful web interface** — dark/light themes, markdown/code rendering, streaming responses
-- **Fully self-hosted** — no data leaves your infrastructure
-- **SQLite-first deployment** — zero external dependencies; PostgreSQL optional
-- **OAuth support** — integrate with Google, GitHub, or any OpenID provider
-- **Plugin-ready** — extensible architecture for custom tools and integrations
+- **Ready to chat instantly** — Pre-populated deploy form with `DEFAULT_MODELS=gpt-4o`, a `OPENAI_API_KEY` placeholder, and `https://api.openai.com/v1` base URL. Replace the placeholder with your real `sk-...` key and you're live.
+- **Multi-provider by default** — Connect OpenAI, Anthropic, OpenRouter, Groq, Together AI, or any OpenAI-compatible endpoint. Override `OPENAI_API_BASE_URL` post-deploy for local Ollama (`http://ollama.railway.internal:11434/v1`).
+- **Single-container deploy** — One Railway service, one persistent `/data` volume for SQLite. Zero external databases; PostgreSQL optional from the in-app admin UI.
+- **Full admin UI post-deploy** — Sign-up toggles, OAuth/OIDC (Google, GitHub, Microsoft, generic OIDC), LDAP, RAG, image generation, web search, and ~150 advanced knobs — all in `/admin/settings` without redeploys.
+- **Bring-your-own-key (BYOK) ready** — Per-user API keys in each profile, or a global admin key in **Settings → Connections**. No env-var plumbing required for each user.
+- **Streaming, markdown, code rendering** — Open WebUI's chat UX with dark/light themes, response streaming, syntax-highlighted code blocks, and image generation built in.
 
 ## Architecture
 

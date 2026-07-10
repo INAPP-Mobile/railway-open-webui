@@ -21,7 +21,7 @@ Self-hosted Open WebUI is a multi-provider chat UI for any Large Language Model,
 └────────┬────────┘
          │
 ┌────────▼────────┐
-│  Open WebUI      │ ◄── Express + WebUI (Docker)
+│  Open WebUI      │ ◄── FastAPI + Svelte (Docker)
 │  Container       │     - /health endpoint
 │                  │     - PORT=8080
 ├──────────────────┤

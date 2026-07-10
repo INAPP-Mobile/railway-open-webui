@@ -78,8 +78,9 @@ The deploy form only asks for the **up-front** knobs. Every other Open WebUI set
 |-----------------------|-----------------------------------------|-------------|
 | `WEBUI_SECRET_KEY`    | _auto (Railway generates 32 chars)_     | Signs session cookies and JWTs. Auto-generated at deploy time. Do not edit unless you intentionally want to invalidate every active session. |
 | `WEBSITE_HOSTNAME`    | `https://<railway-domain>`              | Public URL of this deployment. Auto-resolves to `https://${{RAILWAY_PUBLIC_DOMAIN}}` so OAuth callbacks and CORS work out of the box. Override in the **Variables** tab for custom domains. |
-
-Variables with empty defaults are not exposed on the deploy form; configure them via the **Variables** tab post-deploy if needed.
+| `DEFAULT_MODELS`      | `gpt-4o`                                | Comma-separated model IDs shown in the chat picker. e.g., `gpt-4o,llama3.1:latest`. Default: `gpt-4o`. |
+| `OPENAI_API_KEY`      | _auto (Railway generates 32 chars)_     | API key for OpenAI / OpenRouter / Groq / Together AI / any OpenAI-compatible provider. Auto-generated random dummy — replace with your real `sk-...` key, or set per-user keys in the admin UI later. |
+| `OPENAI_API_BASE_URL` | `https://api.openai.com/v1`             | Base URL for the OpenAI-compatible provider above. Override with `http://ollama.railway.internal:11434/v1` for Railway Ollama, `https://openrouter.ai/api/v1` for OpenRouter, etc. |
 
 These are the only variables rendered on the Railway template deploy form. Other Open WebUI variables (PostgreSQL URL, RAG embedding model, web search key, etc.) can be added from the Railway **Variables** tab and are also exposed in the admin UI.
 

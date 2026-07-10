@@ -8,20 +8,5 @@
     "defaultValue": "https://${{RAILWAY_PUBLIC_DOMAIN}}",
     "description": "Public URL of this deployment. Auto-resolves to https://<railway-domain> so OAuth callbacks and CORS work out of the box. Override for custom domains (e.g., https://chat.example.com).",
     "isOptional": true
-  },
-  "DEFAULT_MODELS": {
-    "defaultValue": "",
-    "description": "Comma-separated model IDs shown in the chat picker (e.g., llama3.1:latest,gpt-4o). Leave empty and add models in the admin UI once a provider is connected.",
-    "isOptional": true
-  },
-  "OPENAI_API_KEY": {
-    "defaultValue": "",
-    "description": "API key for OpenAI, OpenRouter, Groq, Together AI, or any OpenAI-compatible provider. Leave empty if you only use a local Ollama server.",
-    "isOptional": true
-  },
-  "OPENAI_API_BASE_URL": {
-    "defaultValue": "",
-    "description": "Base URL for the OpenAI-compatible provider above. Leave empty for https://api.openai.com/v1. Examples: https://openrouter.ai/api/v1, http://ollama.railway.internal:11434/v1.",
-    "isOptional": true
   }
 }

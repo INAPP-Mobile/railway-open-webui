@@ -3,28 +3,34 @@
 exec 2>&1
 set -euo pipefail
 
-# ── Defaults ──────────────────────────────────────────────────────────────
+# Defaults
 UID_VAL="${UID:-1000}"
 GID_VAL="${GID:-1000}"
 PORT_VAL="${PORT:-8080}"
 
 echo "[boot] container pid=$$ user=$(id 2>&1 || echo unknown)" >&2
 
-# ── 1. /data volume perms (Railway mounts as root:root) ────────────────────
+# 1. /data volume perms (Railway mounts as root:root).
+#    chown R /data often fails on bind-mounted host volumes (no CAP_CHOWN).
+#    Regardless, appuser needs WRITE permission on /data itself so SQLite
+#    can create -wal and -shm sidecar files inline next to the main DB.
+#    chmod 777 is safe here because /data is single-tenant per Railway service.
 chown -R "${UID_VAL}:${GID_VAL}" /data 2>/dev/null \
-    || echo "[boot] chown /data returned non-zero (continuing)" >&2
+    || echo "[boot] chown /data returned non-zero (continuing; chmod fallback)" >&2
+chmod 777 /data 2>/dev/null \
+    || echo "[boot] chmod 777 /data failed (continuing; SQLite -wal will likely EACCES)" >&2
 DATA_PERMS=$(stat -c '%a %U:%G' /data 2>/dev/null || echo "stat-fail")
 echo "[boot] /data perms=${DATA_PERMS}" >&2
 
-# ── 2. Database URL fallback ──────────────────────────────────────────────
+# 2. Database URL fallback
 if [ -z "${DATABASE_URL:-}" ]; then
     export DATABASE_URL="sqlite:////data/open_webui.db"
 fi
 echo "[boot] DATABASE_URL=${DATABASE_URL}" >&2
 
-# Derive a path to pre-touch so SQLAlchemy open() doesn't hit EACCES on
-# first run. Upstream open-webui env.py also computes DATA_DIR-based paths
-# internally; this match handles both flavours.
+# Derive DB_FILE from DATABASE_URL so the touch lands on the same path
+# the app opens. Upstream open-webui env.py honours DATABASE_URL but if
+# CWD-relative paths sneak in, the second case-branch handles them.
 case "${DATABASE_URL}" in
     sqlite:////*) DB_FILE="${DATABASE_URL#sqlite:////}" ;;
     sqlite:///*)  DB_FILE="/app/backend/${DATABASE_URL#sqlite:///}" ;;
@@ -40,21 +46,21 @@ fi
 DB_PERMS=$(stat -c '%a %U:%G' "${DB_FILE}" 2>/dev/null || echo "stat-fail")
 echo "[boot] DB_FILE=${DB_FILE} exists=$(test -f "${DB_FILE}" && echo Y || echo N) perms=${DB_PERMS}" >&2
 
-# ── 3. WEBUI_SECRET_KEY fallback ──────────────────────────────────────────
+# 3. WEBUI_SECRET_KEY fallback
 if [ -z "${WEBUI_SECRET_KEY:-}" ]; then
     export WEBUI_SECRET_KEY="$(head -c 32 /dev/urandom | base64)"
     echo "[boot] Generated runtime WEBUI_SECRET_KEY (no default shipped)" >&2
 fi
 
-# ── 4. Disable upstream startup hooks that hang/explode on first boot ──────
+# 4. Disable upstream startup hooks that hang/explode on first boot.
 # (Per 2026-06-30 reference: slim image tries to download embedding model
-# files at startup despite env disables. ENTRYPOINT guards prevent the hang.)
+# files at startup despite env disables. These guards prevent the hang.)
 export DISABLE_TOOL_INSTALLER=true
 export ENABLE_LSP=false
 export DISABLE_COMMUNITY_SHARING=true
 
-# ── 5. Drop privileges to appuser and exec uvicorn ─────────────────────────
-# `setpriv --reuid/--regid/--init-groups` runs the program as appuser while
+# 5. Drop privileges to appuser and exec uvicorn.
+# setpriv --reuid/--regid/--init-groups runs the program as appuser while
 # inheriting the parent's env (PORT, DATABASE_URL, WEBUI_SECRET_KEY all carry
 # through). No nested-quoting foot-gun vs su -c.
 cd /app/backend

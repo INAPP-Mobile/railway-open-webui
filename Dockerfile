@@ -45,29 +45,21 @@ RUN python3 /tmp/docker-patch-config.py 2>/dev/null || true && \
 # under appuser.
 COPY --chmod=755 docker-entrypoint.sh /usr/local/bin/railway-entrypoint.sh
 
-# CRITICAL: do NOT name this `UID` / `GID` — bash reserves those as read-only
-# virtual variables that always equal the *effective* user id of the running
-# shell. When the entrypoint runs as USER root, $UID=0 and $GID=0 clobber
-# whatever we pass here, breaking the setpriv privilege drop silently.
-# Use APP_UID / APP_GID throughout.
-ENV APP_UID=1000 \
-    APP_GID=1000
-RUN addgroup --gid ${APP_GID} appuser && \
-    adduser --disabled-password --uid ${APP_UID} --ingroup appuser appuser && \
-    # Build-time prep: chown only the dirs appuser writes at runtime.
-    # /app/backend/data is Railway's volume mount target — it must pre-exist
-    # as a directory for the bind mount to attach to (otherwise Docker creates
-    # it AS ROOT, breaking appuser writability through chmod alone).
-    # /home/appuser/.cache is the upstream model-cache dir.
-    # We do NOT chown /app/backend itself — upstream source files stay root-owned.
-    mkdir -p /app/backend/data /home/appuser/.cache && \
-    chown -R ${APP_UID}:${APP_GID} /app/backend/data /home/appuser/.cache
+# Run as root throughout: this matches upstream open-webui's default (User=0:0
+# in the upstream image), and Railway-managed volume mounts are typically
+# root:root 755 with restricted chmod/chown (the same bind-mount CAP_CHOWN
+# restriction we hit locally with /tmp bind mounts).
+#
+# Earlier we tried dropping privileges via setpriv to a dedicated appuser
+# (UID=1000). That hit EACCES on SQLite -wal/-shm writes because the
+# container cannot chown/chmod the underlying host volume inode. Stop fighting
+# the volume mount and run start.sh directly as root, like upstream does.
+#
+# mkdir -p /app/backend/data ensures the Railway volume mount attaches to
+# an existing directory inode (otherwise Docker creates it AS ROOT with
+# stricter 700 mode, which would still be fine since we run as root).
+RUN mkdir -p /app/backend/data /home/appuser/.cache
 
-# Stay as root so the wrapper can re-fix /app/backend/data ownership at
-# runtime (the Railway volume mount at /app/backend/data may shadow our
-# build-time chown). The wrapper re-runs chmod/chown at every boot, then
-# drops privileges to appuser via setpriv before delegating to upstream's
-# start.sh.
 USER root
 
 EXPOSE 8080

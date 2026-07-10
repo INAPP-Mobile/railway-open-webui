@@ -112,10 +112,14 @@ if [ ! -r /app/backend/start.sh ]; then
     exit 2
 fi
 cd /app/backend
-echo "[boot] delegating to upstream start.sh (bash pid=$$ -> setpriv --reuid=${UID_VAL} --regid=${GID_VAL} bash /app/backend/start.sh)" >&2
 
-# setpriv drops to appuser while inheriting our patched env (PORT,
-# DATABASE_URL, WEBUI_SECRET_KEY, DATA_DIR). The `exec` replaces the
-# current bash with setpriv so it stays PID 1's child chain.
-exec setpriv --reuid="${UID_VAL}" --regid="${GID_VAL}" --init-groups \
-    bash /app/backend/start.sh
+# Run upstream start.sh directly as root. Earlier we tried `setpriv
+# --reuid=1000 --regid=1000` to drop to a dedicated appuser, but Railway-
+# managed volume mounts are typically root:root 755 with restricted
+# chmod/chown in the bind mount (the same CAP_CHOWN restriction we hit
+# locally with /tmp bind mounts). With appuser, SQLite couldn't create
+# -wal/-shm sidecar files in /app/backend/data. Running start.sh as root
+# matches upstream open-webui's default behavior (User=0:0 in the v0.10.2
+# -slim image) and avoids the permission cascade.
+echo "[boot] delegating to upstream start.sh (bash pid=$$ as root)" >&2
+exec bash /app/backend/start.sh

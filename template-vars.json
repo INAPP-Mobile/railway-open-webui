@@ -10,13 +10,13 @@
     "isOptional": true
   },
   "DEFAULT_MODELS": {
-    "value": "gpt-4o",
-    "description": "Comma-separated list of models to surface in the chat picker. Default: 'gpt-4o'. Override with models from your configured provider (e.g., 'gpt-4o,llama3.1:latest').",
+    "value": "gpt-4o,llama3.1",
+    "description": "Comma-separated list of model IDs shown in the chat picker (e.g. gpt-4o,llama3.1:latest). Default: 'gpt-4o,llama3.1'. Override with the models from your configured provider.",
     "isOptional": true
   },
   "OPENAI_API_KEY": {
     "value": "${{secret(32)}}",
-    "description": "API key for OpenAI / OpenRouter / Groq / Together AI / any OpenAI-compatible provider. Default is a Railway ${{secret(32)}} random dummy string; replace with your real sk-... key, or configure per-user keys in the admin UI.",
+    "description": "Random placeholder string from Railway ${{secret(32)}} — replace with your real sk-... key (OpenAI / OpenRouter / Groq / Together AI / any OpenAI-compatible provider), or leave default and configure per-user keys in the admin UI later.",
     "isOptional": true
   },
   "OPENAI_API_BASE_URL": {

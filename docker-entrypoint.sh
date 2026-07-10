@@ -29,11 +29,12 @@ fi
 
 # Same widening for any existing SQLite DB + WAL/SHM siblings (idempotent;
 # only chmods files we find, so first-volume case is a no-op).
+# chmod 666 widens the SQLite file so -wal/-shm siblings are writable; same Railway root:root 755 pattern as the dir chmod above.
 if [ -f "${DATA_DIR}/webui.db" ]; then
   chmod 666 "${DATA_DIR}/webui.db" 2>/dev/null || true
 fi
 
-# 2. WEBUI_SECRET_KEY — only fill if upstream didn't already autogen.
+# WEBUI_SECRET_KEY — only fill if upstream didn't already autogen.
 # Upstream's start.sh runs `openssl rand -hex 32` itself when this var is empty,
 # so we don't need to seed it here. Leaving unset is correct.
 export WEBUI_SECRET_KEY="${WEBUI_SECRET_KEY:-}"

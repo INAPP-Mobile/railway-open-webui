@@ -1,4 +1,8 @@
 #!/bin/bash
+# Merge stderr into stdout so Railway's log stream captures our [boot]
+# diagnostics alongside uvicorn's lifespan output. (Earlier deploys were
+# printing [boot] lines but Railway's filter only kept app stdout.)
+exec 2>&1
 set -euo pipefail
 
 # ── 1. Fix /data ownership at runtime ─────────────────────────────────────

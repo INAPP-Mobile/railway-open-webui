@@ -30,8 +30,16 @@ RUN python3 /tmp/docker-patch-config.py 2>/dev/null || true && \
     apt-get update && apt-get install -y --no-install-recommends curl && \
     rm -rf /var/lib/apt/lists/*
 
-# ── 3. Non-root user ──
-COPY --chmod=755 docker-entrypoint.sh /docker-entrypoint.sh
+# ── 3. Custom boot script ──
+# We overwrite upstream's CMD target (/app/backend/start.sh) with our
+# chown-then-exec-uvicorn script. Upstream's Dockerfile CMD is
+#   ["bash", "start.sh"]   (working dir: /app/backend)
+# so Docker runs /app/backend/start.sh as the boot. USER root lets us
+# chown /data at runtime; we drop to appuser via setpriv before exec
+# python -m uvicorn. ENGINE: use upstream's verified PID-1 / CMD chain —
+# do NOT set our own ENTRYPOINT (Railway's log capture was filtering out
+# scripts that overrode upstream's).
+COPY --chmod=755 docker-entrypoint.sh /app/backend/start.sh
 
 ENV UID=1000 \
     GID=1000
@@ -51,5 +59,3 @@ EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://127.0.0.1:${PORT:-8080}/health || exit 1
-
-ENTRYPOINT ["/docker-entrypoint.sh"]

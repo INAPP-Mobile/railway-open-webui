@@ -65,7 +65,7 @@ With Railway, you get automatic HTTPS, global CDN, health monitoring, and scalab
 
 ### Deployment Dependencies
 
-- **Runtime:** Open WebUI v0.6.18 (upstream ghcr.io image, pinned in the Dockerfile)
+- **Runtime:** Open WebUI v0.10.2 (upstream ghcr.io image, pinned in the Dockerfile)
 - **Storage:** Persistent volume mounted at `/data` (Railway `[[deploy.volumeMounts]] mountPath`; `DATA_DIR=/data` is baked into the Dockerfile, and the entrypoint precreates + chmod 777's it on first boot so the upstream non-root user can write)
 - **External access:** Port 8080 for the web interface and API
 - **Optional:** Ollama or OpenAI-compatible API endpoint (set `OLLAMA_BASE_URL` or provider API keys)
@@ -135,7 +135,7 @@ If you're running Open WebUI alongside a separate Ollama service on Railway:
 
 **Database empty after redeploy:** `DATA_DIR` is baked into the image as `/data` (Dockerfile ENV), and the persistent volume is `open-webui-volume` mounted at `/data`. If you change the volume's name in the **Volumes** tab, update `[[deploy.volumeMounts]] name =` to match — otherwise Railway creates a SECOND volume and the app starts fresh every deploy.
 
-**Build fails:** Check the latest build log in the **Deployments** tab — the Dockerfile is a single `FROM ghcr.io/open-webui/open-webui:v0.6.18` line that should complete in under 30s. If it stalls on `apt-get update` or `pip install`, the upstream image tag was rebuilt and our pinned version went stale; update the FROM line.
+**Build fails:** Check the latest build log in the **Deployments** tab — the Dockerfile is a single `FROM ghcr.io/open-webui/open-webui:v0.10.2` line that should complete in under 30s. If it stalls on `apt-get update` or `pip install`, the upstream image tag was rebuilt and our pinned version went stale; update the FROM line.
 
 **Login page errors or app won't start:** `WEBSITE_HOSTNAME` auto-fills to `https://${{RAILWAY_PUBLIC_DOMAIN}}` — secure cookies and OAuth callbacks work out of the box. Override only for custom domains.**OAuth button missing on login page:** Confirm two things — `WEBSITE_HOSTNAME` matches the URL you're logging in through (default is `https://<railway-domain>`, with `https://` prefix included automatically), and OAuth is toggled on in **Settings → Authentication**. Re-test after saving.
 

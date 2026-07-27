@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM ghcr.io/open-webui/open-webui:v0.6.18
+FROM ghcr.io/open-webui/open-webui:v0.10.2
 # Pin DATA_DIR=/data so it reaches the container regardless of Railway env-block
 # schema. Reconciles with the persistent Railway volume mounted at /data.
 ENV DATA_DIR="/data"

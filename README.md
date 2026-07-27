@@ -1,6 +1,6 @@
 # Open WebUI — Railway Template
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.com/new/template/open-webui-3)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.com/new/template/open-webui-templat-1)
 
 Self-hosted Open WebUI is a multi-provider chat UI for any Large Language Model, deployable on Railway in minutes. Drop an OpenAI-style API key on the deploy form for instant access, pair it with [Railway Ollama](#connecting-to-a-local-ollama-instance) for a fully local setup, or use the in-app admin UI to plug in Anthropic and any other provider. All chat history lives in a persistent Railway volume; your data never leaves your own infrastructure.
 

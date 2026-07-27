@@ -6,14 +6,12 @@ Self-hosted Open WebUI is a multi-provider chat UI for any Large Language Model,
 
 ## Features
 
-- **Pre-populated for instant chat** — Deploy form ships with `DEFAULT_MODELS=gpt-4o`, an auto-generated `OPENAI_API_KEY` placeholder, and `https://api.openai.com/v1` base URL. Replace the placeholder with your real `sk-...` key and the chat UI is live. No key? See [Connecting to a Local Ollama Instance](#connecting-to-a-local-ollama-instance) for the fully local path.
-- **Multi-provider by default** — Connect OpenAI, OpenRouter, Groq, Together AI, or any OpenAI-compatible endpoint through the same base URL. Override `OPENAI_API_BASE_URL` post-deploy for local Ollama (`http://ollama.railway.internal:11434/v1`).
-- **Single-container deploy** — One Railway service, one persistent `/data` volume for SQLite. Zero external databases; PostgreSQL optional from the in-app admin UI.
-- **Full admin UI post-deploy** — Sign-up toggles, OAuth/OIDC (Google, GitHub, Microsoft, generic OIDC), LDAP, RAG, image generation, web search, and ~150 advanced knobs — all in `/admin/settings` without redeploys.
-- **Per-user or global API keys** — Each user stores their own keys in their profile; admins can set a global default in **Settings → Connections**. No env-var plumbing required per user.
-- **Streaming, markdown, code rendering** — Open WebUI's chat UX with dark/light themes, response streaming, syntax-highlighted code blocks, and image generation built in.
-
-## Architecture
+- **Instant chat** — Deploy form ships with `DEFAULT_MODELS=gpt-4o` and auto-generated `OPENAI_API_KEY` placeholder. Replace with your real `sk-...` key and the UI is live.
+- **Multi-provider** — OpenAI, OpenRouter, Groq, Together AI, or any OpenAI-compatible endpoint via the same base URL.
+- **Single-container** — One Railway service, one persistent `/data` volume for SQLite. PostgreSQL optional from the admin UI.
+- **Full admin UI** — Sign-up toggles, OAuth/OIDC, LDAP, RAG, image generation, web search — all at `/admin/settings`.
+- **Per-user API keys** — Each user stores their own keys; admins set a global default in Settings → Connections.
+- **Volume-backed persistence** — SQLite at `/data` survives deploys, restarts, and region changes.
 
 ```
 ┌─────────────────┐
@@ -94,33 +92,15 @@ These are the only variables rendered on the Railway template deploy form. Other
 
 ## Configuring after deploy
 
-The deploy form is intentionally short. Sign-up toggles, OAuth/OIDC, LDAP, and the bulk of Open WebUI's ~150 environment variables are exposed in the admin UI at `/admin/settings`.
+Sign-up toggles, OAuth/OIDC, LDAP, and ~150 environment variables are exposed in the admin UI at `/admin/settings`.
 
-### Enable or disable sign-up
+**Enable/disable sign-up:** Admin Panel → Settings → General → toggle "Enable Sign-Up". Flip off after creating admin to lock to invited users.
 
-1. Log in as the admin (the first account created).
-2. Click your avatar → **Admin Panel**.
-3. Open **Settings → General** (`/admin/settings`).
-4. Toggle **Enable Sign-Up**. Flip it off once you've created your admin account to lock the deployment to invited users.
-5. Use **Default User Role** to pre-stage new accounts as `pending`, `user`, or another role.
+**Set up OAuth (Google, GitHub, Microsoft, OIDC):** Admin Panel → Settings → Authentication → toggle Enable OAuth/OIDC Sign-In → fill Client ID + Secret → set Redirect URL to `https://<your-app-url>/auth/<provider>/callback` → Save. `WEBUI_URL` auto-resolves to `https://<railway-domain>` so callbacks work out of the box.
 
-### Set up OAuth / OIDC
+**Add LLM providers (Anthropic, OpenAI, OpenRouter):** Settings → Connections → toggle provider → paste API key. Per-user keys live in each user's profile; set a global default here.
 
-Open WebUI has first-class OAuth/OIDC support for Google, GitHub, Microsoft, and generic OIDC, plus LDAP/AD for enterprise. As of v0.6+ these settings live on a dedicated **Authentication** page (moved out of General):
-
-1. `WEBUI_URL` already auto-resolves to `https://<railway-domain>` at deploy time, so OAuth callbacks work out of the box. Only override it if you front the service with a custom domain (e.g., `https://chat.example.com`). OAuth callbacks reject mismatched origins — set this **before** testing the login button.
-2. In the admin UI, open **Settings → Authentication**.
-3. Toggle **Enable OAuth/OIDC Sign-In**.
-4. Fill in **Client ID**, **Client Secret**, and the discovery URLs (`/.well-known/openid-configuration`) — inline placeholders are provided for Google, GitHub, Microsoft, and generic OIDC.
-5. Save, log out, and re-test the login page — the provider button should appear.
-
-### Add LLM provider keys
-
-Per-user API keys live in each user's profile. To set a default for new users or configure a global admin key, go to **Settings → Connections** in the admin UI. This avoids setting environment variables per user.
-
-### Adjust other advanced settings
-
-Almost every env var in upstream [Open WebUI `.env.example`](https://github.com/open-webui/open-webui/blob/main/.env.example) has an equivalent admin UI control — search the **Settings** page for `RAG`, `Web Search`, `Image Generation`, `Default User Role`, etc. If a setting is only exposed as an env var, set it directly from the Railway **Variables** tab.
+**Advanced (RAG, image gen, web search, speech):** Most settings have admin UI controls. For env-var-only settings, add them in Railway's Variables tab. See [Open WebUI docs](https://docs.openwebui.com) for the full list.
 
 ## Connecting to a Local Ollama Instance
 

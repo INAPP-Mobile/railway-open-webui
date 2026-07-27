@@ -77,7 +77,7 @@ The deploy form only asks for the **up-front** knobs. Every other Open WebUI set
 | Variable              | Default                                 | Description |
 |-----------------------|-----------------------------------------|-------------|
 | `WEBUI_SECRET_KEY`    | _auto (Railway generates 32 chars)_     | Signs session cookies and JWTs. Auto-generated at deploy time. Do not edit unless you intentionally want to invalidate every active session. |
-| `WEBUI_URL`    | `https://<railway-domain>`              | Public URL of this deployment. Auto-resolves to `https://${{RAILWAY_PUBLIC_DOMAIN}}` so OAuth callbacks and CORS work out of the box. Override in the **Variables** tab for custom domains. |
+| `WEBSITE_HOSTNAME`    | `https://<railway-domain>`              | Public URL of this deployment. Auto-resolves to `https://${{RAILWAY_PUBLIC_DOMAIN}}` so OAuth callbacks and CORS work out of the box. Override in the **Variables** tab for custom domains. |
 | `DEFAULT_MODELS`      | `gpt-4o`                                | Comma-separated list of model IDs in the chat picker. Default `gpt-4o`. Override with models from your configured provider (e.g., `llama3.1:latest` for Railway Ollama, `gpt-4o,claude-3-5-sonnet` for multi-provider). |
 | `OPENAI_API_KEY`      | _auto (random placeholder)_             | Random placeholder (`${{secret(32)}}`); replace with your real `sk-...` key. |
 | `OPENAI_API_BASE_URL` | `https://api.openai.com/v1`             | Base URL for the OpenAI-compatible provider above. Override with `http://ollama.railway.internal:11434/v1` for Railway Ollama, `https://openrouter.ai/api/v1` for OpenRouter, etc. |
@@ -108,7 +108,7 @@ The deploy form is intentionally short. Sign-up toggles, OAuth/OIDC, LDAP, and t
 
 Open WebUI has first-class OAuth/OIDC support for Google, GitHub, Microsoft, and generic OIDC, plus LDAP/AD for enterprise. As of v0.6+ these settings live on a dedicated **Authentication** page (moved out of General):
 
-1. `WEBUI_URL` already auto-resolves to `https://<railway-domain>` at deploy time, so OAuth callbacks work out of the box. Only override it if you front the service with a custom domain (e.g., `https://chat.example.com`). OAuth callbacks reject mismatched origins — set this **before** testing the login button.
+1. `WEBSITE_HOSTNAME` already auto-resolves to `https://<railway-domain>` at deploy time, so OAuth callbacks work out of the box. Only override it if you front the service with a custom domain (e.g., `https://chat.example.com`). OAuth callbacks reject mismatched origins — set this **before** testing the login button.
 2. In the admin UI, open **Settings → Authentication**.
 3. Toggle **Enable OAuth/OIDC Sign-In**.
 4. Fill in **Client ID**, **Client Secret**, and the discovery URLs (`/.well-known/openid-configuration`) — inline placeholders are provided for Google, GitHub, Microsoft, and generic OIDC.
@@ -137,7 +137,7 @@ If you're running Open WebUI alongside a separate Ollama service on Railway:
 
 **Build fails:** Check the latest build log in the **Deployments** tab — the Dockerfile is a single `FROM ghcr.io/open-webui/open-webui:v0.10.2` line that should complete in under 30s. If it stalls on `apt-get update` or `pip install`, the upstream image tag was rebuilt and our pinned version went stale; update the FROM line.
 
-**Login page errors or app won't start:** `WEBUI_URL` auto-fills to `https://${{RAILWAY_PUBLIC_DOMAIN}}` — secure cookies and OAuth callbacks work out of the box. Override only for custom domains.**OAuth button missing on login page:** Confirm two things — `WEBUI_URL` matches the URL you're logging in through (default is `https://<railway-domain>`, with `https://` prefix included automatically), and OAuth is toggled on in **Settings → Authentication**. Re-test after saving.
+**Login page errors or app won't start:** `WEBSITE_HOSTNAME` auto-fills to `https://${{RAILWAY_PUBLIC_DOMAIN}}` — secure cookies and OAuth callbacks work out of the box. Override only for custom domains.**OAuth button missing on login page:** Confirm two things — `WEBSITE_HOSTNAME` matches the URL you're logging in through (default is `https://<railway-domain>`, with `https://` prefix included automatically), and OAuth is toggled on in **Settings → Authentication**. Re-test after saving.
 
 ## Resources
 

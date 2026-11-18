@@ -75,7 +75,7 @@ The deploy form only asks for the **up-front** knobs. Every other Open WebUI set
 | Variable              | Default                                 | Description |
 |-----------------------|-----------------------------------------|-------------|
 | `WEBUI_SECRET_KEY`    | _auto (Railway generates 32 chars)_     | Signs session cookies and JWTs. Auto-generated at deploy time. Do not edit unless you intentionally want to invalidate every active session. |
-| `WEBUI_URL`    | `https://<railway-domain>`              | Public URL of this deployment. Auto-resolves to `https://${{RAILWAY_PUBLIC_DOMAIN}}` so OAuth callbacks and CORS work out of the box. Override in the **Variables** tab for custom domains. |
+| `WEBUI_URL`    | `https://{railway-domain}`              | Public URL of this deployment. Auto-resolves to `https://${{RAILWAY_PUBLIC_DOMAIN}}` so OAuth callbacks and CORS work out of the box. Override in the **Variables** tab for custom domains. |
 | `DEFAULT_MODELS`      | `gpt-4o`                                | Comma-separated list of model IDs in the chat picker. Default `gpt-4o`. Override with models from your configured provider (e.g., `llama3.1:latest` for Railway Ollama, `gpt-4o,claude-3-5-sonnet` for multi-provider). |
 | `OPENAI_API_KEY`      | _auto (random placeholder)_             | Random placeholder (`${{secret(32)}}`); replace with your real `sk-...` key. |
 | `OPENAI_API_BASE_URL` | `https://api.openai.com/v1`             | Base URL for the OpenAI-compatible provider above. Override with `http://ollama.railway.internal:11434/v1` for Railway Ollama, `https://openrouter.ai/api/v1` for OpenRouter, etc. |
@@ -96,7 +96,7 @@ Sign-up toggles, OAuth/OIDC, LDAP, and ~150 environment variables are exposed in
 
 **Enable/disable sign-up:** Admin Panel → Settings → General → toggle "Enable Sign-Up". Flip off after creating admin to lock to invited users.
 
-**Set up OAuth (Google, GitHub, Microsoft, OIDC):** Admin Panel → Settings → Authentication → toggle Enable OAuth/OIDC Sign-In → fill Client ID + Secret → set Redirect URL to `https://<your-app-url>/auth/<provider>/callback` → Save. `WEBUI_URL` auto-resolves to `https://<railway-domain>` so callbacks work out of the box.
+**Set up OAuth (Google, GitHub, Microsoft, OIDC):** Admin Panel → Settings → Authentication → toggle Enable OAuth/OIDC Sign-In → fill Client ID + Secret → set Redirect URL to `https://{your-app-url}/auth/{provider}/callback` → Save. `WEBUI_URL` auto-resolves to `https://{railway-domain}` so callbacks work out of the box.
 
 **Add LLM providers (Anthropic, OpenAI, OpenRouter):** Settings → Connections → toggle provider → paste API key. Per-user keys live in each user's profile; set a global default here.
 
@@ -117,7 +117,7 @@ If you're running Open WebUI alongside a separate Ollama service on Railway:
 
 **Build fails:** Check the latest build log in the **Deployments** tab — the Dockerfile is a single `FROM ghcr.io/open-webui/open-webui:v0.10.2` line that should complete in under 30s. If it stalls on `apt-get update` or `pip install`, the upstream image tag was rebuilt and our pinned version went stale; update the FROM line.
 
-**Login page errors or app won't start:** `WEBUI_URL` auto-fills to `https://${{RAILWAY_PUBLIC_DOMAIN}}` — secure cookies and OAuth callbacks work out of the box. Override only for custom domains.**OAuth button missing on login page:** Confirm two things — `WEBUI_URL` matches the URL you're logging in through (default is `https://<railway-domain>`, with `https://` prefix included automatically), and OAuth is toggled on in **Settings → Authentication**. Re-test after saving.
+**Login page errors or app won't start:** `WEBUI_URL` auto-fills to `https://${{RAILWAY_PUBLIC_DOMAIN}}` — secure cookies and OAuth callbacks work out of the box. Override only for custom domains.**OAuth button missing on login page:** Confirm two things — `WEBUI_URL` matches the URL you're logging in through (default is `https://{railway-domain}`, with `https://` prefix included automatically), and OAuth is toggled on in **Settings → Authentication**. Re-test after saving.
 
 ## Resources
 
